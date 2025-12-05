@@ -3,6 +3,7 @@ package com.logitrack.domain.port.in;
 import com.logitrack.domain.model.PackageStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.logitrack.domain.model.Package;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,5 +1,7 @@
 package com.logitrack.domain.port.in;
 
+import com.logitrack.domain.model.Package;
+
 public interface AddLocationUseCase {
 
     Package addLocation(AddLocationCommand command);
