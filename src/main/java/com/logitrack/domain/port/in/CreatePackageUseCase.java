@@ -1,6 +1,5 @@
 package com.logitrack.domain.port.in;
 
-import com.logitrack.application.dto.CreatePackageCommand;
 import com.logitrack.domain.model.Package;
 
 public interface CreatePackageUseCase {

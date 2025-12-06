@@ -23,9 +23,15 @@ public class Package {
     @Setter(AccessLevel.PACKAGE)
     private PackageState state;
 
-    private final LocalDateTime createdAt;
+    @Setter(AccessLevel.PACKAGE)
+    private LocalDateTime createdAt;
+
+    @Setter(AccessLevel.PACKAGE)
     private LocalDateTime updatedAt;
+
+    @Setter(AccessLevel.PACKAGE)
     private boolean deleted;
+
     private String notes;
 
     private final List<DomainEvent> domainEvents;
