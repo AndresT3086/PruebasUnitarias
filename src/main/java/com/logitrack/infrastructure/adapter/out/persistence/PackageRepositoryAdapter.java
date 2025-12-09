@@ -46,7 +46,7 @@ public class PackageRepositoryAdapter implements PackageRepository {
 
     @Override
     public List<Package> findByStatus(PackageStatus status) {
-        return jpaRepository.findByStatusAndDeletedFalse(status.name())
+        return jpaRepository.findByStatusAndDeletedFalse(status)
                 .stream()
                 .map(this::toDomain)
                 .collect(Collectors.toList());
@@ -54,13 +54,13 @@ public class PackageRepositoryAdapter implements PackageRepository {
 
     @Override
     public Page<Package> search(SearchCriteria criteria, Pageable pageable) {
-        String statusStr = criteria.status() != null ? criteria.status().name() : null;
+        PackageStatus statusEnum = criteria.status();
         boolean includeDeleted = criteria.deleted() != null && criteria.deleted();
 
         Page<PackageEntity> entities = jpaRepository.searchPackages(
                 criteria.recipientName(),
                 criteria.recipientEmail(),
-                statusStr,
+                statusEnum,
                 criteria.createdFrom(),
                 criteria.createdTo(),
                 includeDeleted,
@@ -95,7 +95,7 @@ public class PackageRepositoryAdapter implements PackageRepository {
                 .width(domainPackage.getDimensions().getWidth())
                 .depth(domainPackage.getDimensions().getDepth())
                 .weight(domainPackage.getWeight().getValueInKg())
-                .status(domainPackage.getStatus().name())
+                .status(domainPackage.getStatus())
                 .notes(domainPackage.getNotes())
                 .deleted(domainPackage.isDeleted())
                 .createdAt(domainPackage.getCreatedAt())
@@ -143,7 +143,7 @@ public class PackageRepositoryAdapter implements PackageRepository {
 
         Weight weight = Weight.ofKilograms(entity.getWeight().doubleValue());
 
-        PackageStatus status = PackageStatus.valueOf(entity.getStatus());
+        PackageStatus status = PackageStatus.valueOf(entity.getStatus().name());
         PackageState state = createState(status);
 
         Package pkg = PackageReconstitutor.reconstitute(

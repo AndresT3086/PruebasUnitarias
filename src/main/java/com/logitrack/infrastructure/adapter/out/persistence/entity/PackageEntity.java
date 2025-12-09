@@ -1,5 +1,6 @@
 package com.logitrack.infrastructure.adapter.out.persistence.entity;
 
+import com.logitrack.domain.model.PackageStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -66,7 +67,7 @@ public class PackageEntity {
 
     @Column(name = "status", nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
-    private String status;
+    private PackageStatus status;
 
     @Column(name = "notes", length = 500)
     private String notes;

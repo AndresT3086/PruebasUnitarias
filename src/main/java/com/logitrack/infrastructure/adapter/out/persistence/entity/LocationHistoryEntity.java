@@ -19,6 +19,7 @@ public class LocationHistoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(columnDefinition = "UUID")
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)

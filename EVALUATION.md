@@ -15,48 +15,95 @@ Este documento te guía para autoevaluarte de forma alineada con los requisitos 
 Marca Sí/No y aporta breve evidencia (archivo/clase/test) y justificación.
 
 1. POO básica y estructura del dominio
-   - Clase Package con atributos requeridos y métodos coherentes (addLocation, changeStatus). [Sí/No]
-   - Encapsulación y protección del estado interno. [Sí/No]
-   Evidencia: ruta de archivo/clase.
+   - Clase Package con atributos requeridos y métodos coherentes (addLocation, changeStatus). [Sí]
+   - Encapsulación y protección del estado interno. [Sí]
+   
+   ### Evidencia:
+   - src/main/java/com/logitrack/domain/model/Package.java.
+   - Métodos: addLocation(), changeStatus(), softDelete()
+   - Estado protegido con modificadores private y métodos públicos controlados
 
 2. Estructuras de datos adecuadas
-   - Implementación de LocationHistory con colección apropiada y orden cronológico. [Sí/No]
-   - Exposición de lecturas sin mutación indebida (copias defensivas u opciones equivalentes). [Sí/No]
-   Evidencia: métodos y pruebas asociadas.
+   - Implementación de LocationHistory con colección apropiada y orden cronológico. [Sí]
+   - Exposición de lecturas sin mutación indebida (copias defensivas u opciones equivalentes). [Sí]
+
+   ### Evidencia:
+   - src/main/java/com/logitrack/domain/model/LocationHistory.java
+   - Método getLocations() retorna Collections.unmodifiableList()
+   - Validación de orden cronológico en addLocation()
 
 3. CRUD básico de Package
-   - Operaciones Crear/Leer/Actualizar/Borrar mediante servicio/repositorio. [Sí/No]
-   - Reglas de actualización y manejo de errores definidos. [Sí/No]
-   Evidencia: servicio/repositorio y pruebas.
+   - Operaciones Crear/Leer/Actualizar/Borrar mediante servicio/repositorio. [Sí]
+   - Reglas de actualización y manejo de errores definidos. [Sí]
+
+   ### Evidencia:
+   - src/main/java/com/logitrack/application/service/PackageServiceImpl.java
+   - src/main/java/com/logitrack/infrastructure/adapter/out/persistence/PackageRepositoryAdapter.java
+   - Soft delete implementado, excepciones específicas del dominio
+
 
 4. Consumo de APIs REST externas
-   - Cliente REST (o mocks/stubs) con manejo de errores (timeouts, 4xx/5xx) y validación de respuesta. [Sí/No]
-   - Pruebas unitarias que mockean la capa HTTP. [Sí/No]
-   Evidencia: cliente/pruebas.
+   - Cliente REST (o mocks/stubs) con manejo de errores (timeouts, 4xx/5xx) y validación de respuesta. [Sí]
+   - Pruebas unitarias que mockean la capa HTTP. [No]
+   
+   ### Evidencia:
+   - src/main/java/com/logitrack/infrastructure/adapter/out/external/GeocodeApiClient.java
+   - Retry logic con Retry.backoff(), manejo de WebClientResponseException
 
 5. Gestión del ciclo de vida (máquina de estados)
-   - Estados definidos y transiciones válidas. [Sí/No]
-   - Diseño sin if/else o switch extensos (State/tabla de transiciones/polimorfismo). [Sí/No]
-   Evidencia: diseño y tests de transiciones válidas/ inválidas.
+   - Estados definidos y transiciones válidas. [Sí]
+   - Diseño sin if/else o switch extensos (State/tabla de transiciones/polimorfismo). [Sí]
 
+    ### Evidencia:
+   - src/main/java/com/logitrack/domain/model/state/PackageState.java
+   - src/main/java/com/logitrack/domain/model/state/CreatedState.java, InTransitState.java, etc.
+   - Patrón State implementado con polimorfismo
+   
 6. Creación robusta de objetos
-   - Builder/Factory (u enfoque equivalente) que evita constructores telescópicos. [Sí/No]
-   - Validaciones básicas (ej. peso no negativo) e invariantes al crear. [Sí/No]
-   Evidencia: patrón utilizado y pruebas.
+   - Builder/Factory (u enfoque equivalente) que evita constructores telescópicos. [Sí]
+   - Validaciones básicas (ej. peso no negativo) e invariantes al crear. [Sí]
+
+    ### Evidencia:
+   - src/main/java/com/logitrack/domain/model/Package.Builder (Builder pattern)
+   - src/main/java/com/logitrack/application/factory/PackageFactory.java
+   - src/main/java/com/logitrack/domain/model/Weight.java - valida peso positivo y máximo 1000kg
 
 7. Buenas prácticas y organización
-   - Estructura de carpetas clara y convenciones de estilo. [Sí/No]
-   - README básico y uso de gestor de dependencias (Gradle/Maven/etc.). [Sí/No]
-   - Commits atómicos con mensajes claros. [Sí/No]
-   Evidencia: README, build file, historial Git.
+   - Estructura de carpetas clara y convenciones de estilo. [Sí]
+   - README básico y uso de gestor de dependencias (Gradle/Maven/etc.). [Sí]
+   - Commits atómicos con mensajes claros. [Sí]
+   
+   ### Evidencia:
+   - Arquitectura Hexagonal: /domain, /application, /infrastructure
+   - README.md completo con instrucciones
+   - pom.xml con Maven
 
 8. Pruebas unitarias
-   - Caminos felices y escenarios borde (incluye CRUD y cliente REST con dobles). [Sí/No]
-   - Nombres descriptivos y aislamiento (sin dependencias externas). [Sí/No]
-   Evidencia: rutas de tests y breve resumen de casos.
+   - Caminos felices y escenarios borde (incluye CRUD y cliente REST con dobles). [No]
+   - Nombres descriptivos y aislamiento (sin dependencias externas). [Sí]
+   
+   ### Evidencia:
+   - src/test/java/com/logitrack/domain/model/PackageTest.java - Tests con patrón AAA
+   - Uso de Mockito para aislar dependencias
+   - Tests con nombres descriptivos usando @DisplayName
+
+
 
 Notas/Comentarios Fase 1:
-- Decisiones clave de diseño del dominio y motivos.
+   - Arquitectura Hexagonal:
+     - Separación clara entre dominio, aplicación e infraestructura para mantener el dominio agnóstico a la tecnología.
+   - Value Objects:
+     - PackageId, Weight, Dimensions, Recipient para encapsular validaciones y garantizar inmutabilidad.
+   - Patrón State:
+     - Elimina lógica condicional compleja para transiciones de estado, cada estado conoce sus transiciones válidas.
+   - Event-Driven:
+     - Implementación de Domain Events para desacoplar efectos secundarios y habilitar integración con Kafka.
+   - Repository Pattern:
+     - Abstracción del acceso a datos permitiendo cambiar la implementación sin afectar el dominio.
+   - Soft Delete:
+     - Los paquetes nunca se eliminan físicamente, manteniendo trazabilidad completa.
+   - LocationHistory:
+     - Encapsula la lógica de orden cronológico y protege la consistencia del historial.
 
 ---
 

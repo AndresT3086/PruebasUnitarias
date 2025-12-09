@@ -1,5 +1,6 @@
 package com.logitrack.infrastructure.adapter.out.persistence;
 
+import com.logitrack.domain.model.PackageStatus;
 import com.logitrack.infrastructure.adapter.out.persistence.entity.PackageEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,7 @@ public interface PackageJpaRepository extends JpaRepository<PackageEntity, Strin
 
     Optional<PackageEntity> findByIdAndDeletedFalse(String id);
 
-    List<PackageEntity> findByStatusAndDeletedFalse(String status);
+    List<PackageEntity> findByStatusAndDeletedFalse(PackageStatus status);
 
     @Query("""
         SELECT p FROM PackageEntity p
@@ -29,7 +30,7 @@ public interface PackageJpaRepository extends JpaRepository<PackageEntity, Strin
     Page<PackageEntity> searchPackages(
             @Param("recipientName") String recipientName,
             @Param("recipientEmail") String recipientEmail,
-            @Param("status") String status,
+            @Param("status") PackageStatus status,
             @Param("createdFrom") LocalDateTime createdFrom,
             @Param("createdTo") LocalDateTime createdTo,
             @Param("includeDeleted") boolean includeDeleted,

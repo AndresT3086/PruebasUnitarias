@@ -28,7 +28,6 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> login(
             @Valid @RequestBody LoginRequest request) {
 
-        // Mock authentication - In production, verify against database
         String token = null;
         List<String> roles = null;
 
