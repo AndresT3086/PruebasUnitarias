@@ -1,6 +1,5 @@
 package com.logitrack.infrastructure.adapter.out.persistence;
 
-import com.logitrack.domain.exception.InvalidPackageDataException;
 import com.logitrack.domain.model.*;
 import com.logitrack.domain.model.Package;
 import com.logitrack.domain.model.state.*;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -49,7 +48,7 @@ public class PackageRepositoryAdapter implements PackageRepository {
         return jpaRepository.findByStatusAndDeletedFalse(status)
                 .stream()
                 .map(this::toDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -104,7 +103,7 @@ public class PackageRepositoryAdapter implements PackageRepository {
 
         domainPackage.getLocationHistory().getLocations().forEach(location -> {
             LocationHistoryEntity locationEntity = LocationHistoryEntity.builder()
-                    .id(location.getId())
+                    .id(UUID.fromString(location.getId()))
                     .city(location.getCity())
                     .country(location.getCountry())
                     .description(location.getDescription())
@@ -160,7 +159,7 @@ public class PackageRepositoryAdapter implements PackageRepository {
 
         entity.getLocationHistory().forEach(locationEntity -> {
             Location location = Location.builder()
-                    .id(locationEntity.getId())
+                    .id(locationEntity.getId().toString())
                     .city(locationEntity.getCity())
                     .country(locationEntity.getCountry())
                     .description(locationEntity.getDescription())
