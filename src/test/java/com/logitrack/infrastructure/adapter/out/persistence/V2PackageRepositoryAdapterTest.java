@@ -140,7 +140,7 @@ class V2PackageRepositoryAdapterTest {
     class FindByIdTests {
 
         /**
-         * TEST 4
+         * TEST 3
          * findById con ID existente retorna Optional con PackageResponse.
          */
         @Test
