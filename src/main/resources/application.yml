@@ -2,58 +2,8 @@ spring:
   application:
     name: logitrack
 
-  datasource:
-    url: jdbc:postgresql://localhost:5433/logitrack
-    username: logitrack_user
-    password: logitrack_pass
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 300000
-      max-lifetime: 600000
-      connection-timeout: 30000
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-        show_sql: false
-        jdbc:
-          batch_size: 20
-    open-in-view: false
-
-  kafka:
-    bootstrap-servers: localhost:9092
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      acks: all
-      retries: 3
-    consumer:
-      group-id: logitrack-group
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: "com.logitrack.domain.event"
-
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    validate-on-migrate: true
-    locations: classpath:db/migration
-    schemas: public
-
-  security:
-    jwt:
-      secret: h7zqZKJ2JXPuQpZFr2eD8dhk3eS5v9+uI6BbH8j5mUdZz2UYOqQczh0XEIYH4m9aC5GT1lq7o7FJr6FfPuWb0Q==
-      expiration: 86400000
-
 server:
-  port: 8080
+  port: ${PORT:8080}
   error:
     include-message: always
     include-binding-errors: always
@@ -75,8 +25,6 @@ logging:
   level:
     com.logitrack: DEBUG
     org.springframework.web: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
 
 external:
   geocode:

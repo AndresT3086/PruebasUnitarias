@@ -1,7 +1,10 @@
 package com.logitrack.infrastructure.adapter.out.external.client;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -128,12 +131,18 @@ public class GeocodeApiClient {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class GeocodeResponse {
         private List<Result> results;
         private Status status;
 
         @Data
         @Builder
+        @NoArgsConstructor
+        @AllArgsConstructor
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Result {
             private Components components;
             private Geometry geometry;
@@ -142,6 +151,9 @@ public class GeocodeApiClient {
 
         @Data
         @Builder
+        @NoArgsConstructor
+        @AllArgsConstructor
+        @JsonIgnoreProperties(ignoreUnknown = true)
         public static class Components {
             private String city;
             private String town;
@@ -154,6 +166,8 @@ public class GeocodeApiClient {
 
         @Data
         @Builder
+        @NoArgsConstructor
+        @AllArgsConstructor
         public static class Geometry {
             private double lat;
             private double lng;
@@ -161,6 +175,8 @@ public class GeocodeApiClient {
 
         @Data
         @Builder
+        @NoArgsConstructor
+        @AllArgsConstructor
         public static class Status {
             private int code;
             private String message;

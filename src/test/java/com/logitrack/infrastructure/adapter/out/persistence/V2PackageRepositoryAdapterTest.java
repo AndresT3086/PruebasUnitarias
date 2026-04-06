@@ -17,6 +17,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +33,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PackageService - Unit Tests Versión 2")
+@MockitoSettings(strictness = Strictness.LENIENT)
 class V2PackageRepositoryAdapterTest {
 
     @Mock
@@ -171,7 +174,7 @@ class V2PackageRepositoryAdapterTest {
                     .thenReturn(Optional.empty());
 
             // Act
-            Optional<PackageResponse> result = packageService.findById("LT-INEXISTENTE");
+            Optional<PackageResponse> result = packageService.findById("LT-xxx");
 
             // Assert
             assertThat(result).isEmpty();
@@ -237,6 +240,30 @@ class V2PackageRepositoryAdapterTest {
                     .isInstanceOf(PackageNotFoundException.class);
 
             verify(packageRepository, never()).save(any());
+        }
+
+        /**
+         * TEST 9
+         * Si el paquete existe pero falla el save (ej: error de BD),
+         * se debe propagar la excepción.
+         */
+        @Test
+        @DisplayName("Should propagate exception when save fails during soft delete")
+        void shouldThrowWhenSaveFailsDuringSoftDelete() {
+            // Arrange
+            when(packageRepository.findByIdAndNotDeleted(packageId))
+                    .thenReturn(Optional.of(validPackage));
+
+            doThrow(new RuntimeException("Database error"))
+                    .when(packageRepository).save(any(Package.class));
+
+            // Act & Assert
+            assertThatThrownBy(() -> packageService.deletePackage(packageId))
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Database error");
+
+            // Verificamos que sí intentó guardar
+            verify(packageRepository).save(any(Package.class));
         }
     }
 

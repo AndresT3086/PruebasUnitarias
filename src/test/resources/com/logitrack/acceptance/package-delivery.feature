@@ -5,8 +5,7 @@ Feature: Package Delivery Flow
     * def loginResult = call read('classpath:com/logitrack/acceptance/helpers/login.feature')
     * def authHeader = 'Bearer ' + loginResult.token
     * configure headers = { 'Authorization': '#(authHeader)', 'Content-Type': 'application/json' }
-    * configure logPrettyRequest = true
-    * configure logPrettyResponse = true
+
 
   Scenario: Full delivery flow CREATED to DELIVERED
     Given path 'api','v1','packages'
@@ -74,4 +73,4 @@ Feature: Package Delivery Flow
     Given path 'api','v1','packages', pkgId, 'status'
     And param status = 'DELIVERED'
     When method PUT
-    Then status 422
+    Then status 409

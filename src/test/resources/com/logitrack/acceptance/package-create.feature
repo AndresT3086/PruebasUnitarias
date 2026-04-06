@@ -5,8 +5,6 @@ Feature: Package Creation API
     * def loginResult = call read('classpath:com/logitrack/acceptance/helpers/login.feature')
     * def authHeader = 'Bearer ' + loginResult.token
     * configure headers = { 'Authorization': '#(authHeader)', 'Content-Type': 'application/json' }
-    * configure logPrettyRequest = true
-    * configure logPrettyResponse = true
 
   Scenario: Should reject package without recipient
     Given path 'api','v1','packages'

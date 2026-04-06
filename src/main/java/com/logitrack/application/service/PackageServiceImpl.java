@@ -41,21 +41,27 @@ public class PackageServiceImpl implements PackageService,
     public PackageResponse createPackage(com.logitrack.application.dto.CreatePackageCommand command) {
         log.debug("Creating package for recipient: {}", command.getRecipientEmail());
 
-        validateLocation(command.getCity(), command.getCountry());
+        // Obtener coordenadas reales
+        LocationService.LocationInfo locationInfo = locationService
+                .getLocationInfo(command.getCity(), command.getCountry())
+                .orElse(null);
+
+        if (locationInfo == null) {
+            log.warn("Could not geocode location: {}, {}", command.getCity(), command.getCountry());
+        }
 
         Package pkg = packageFactory.createPackage(command);
 
         Location initialLocation = Location.create(
-                command.getCity(),
-                command.getCountry(),
+                locationInfo != null ? locationInfo.city()      : command.getCity(),
+                locationInfo != null ? locationInfo.country()   : command.getCountry(),
                 "Package created",
-                null,
-                null
+                locationInfo != null ? locationInfo.latitude()  : null,
+                locationInfo != null ? locationInfo.longitude() : null
         );
         pkg.addLocation(initialLocation);
 
         Package savedPackage = packageRepository.save(pkg);
-
         publishEvents(savedPackage);
 
         log.info("Package created successfully with ID: {}", savedPackage.getId());

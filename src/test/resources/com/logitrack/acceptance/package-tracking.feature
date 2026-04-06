@@ -5,8 +5,7 @@ Feature: Package Tracking
     * def loginResult = call read('classpath:com/logitrack/acceptance/helpers/login.feature')
     * def authHeader = 'Bearer ' + loginResult.token
     * configure headers = { 'Authorization': '#(authHeader)', 'Content-Type': 'application/json' }
-    * configure logPrettyRequest = true
-    * configure logPrettyResponse = true
+
 
   Scenario: Should get package by id
     Given path 'api','v1','packages'
