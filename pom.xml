@@ -33,16 +33,24 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.exclusions>
             **/config/**,
-            **/configuracion/**,
             **/dto/**,
-            **/request/**,
-            **/response/**,
-            **/entidades/**,
             **/entity/**,
-            **/SupportsuiteApplication.java
+            **/LogiTrackApplication.java,
+            **/migration/**,
+            **/db/migration/**,
+            **/*.sql
         </sonar.exclusions>
+        <sonar.coverage.exclusions>
+            **/config/**,
+            **/dto/**,
+            **/entity/**,
+            **/LogiTrackApplication.java,
+            **/migration/**,
+            **/db/migration/**,
+            **/*.sql
+        </sonar.coverage.exclusions>
         <sonar.language>java</sonar.language>
-        <sonar.coverage.minimum>40</sonar.coverage.minimum>
+        <sonar.coverage.minimum>70</sonar.coverage.minimum>
     </properties>
 
     <dependencies>
@@ -202,18 +210,30 @@
                 <version>0.8.11</version>
                 <configuration>
                     <excludes>
-                        <!-- Excluir clase principal -->
-                        <exclude>**/SupportsuiteApplication.class</exclude>
-                        <!-- Excluir configuraciones -->
+                        <!-- Aplicación principal -->
+                        <exclude>**/LogiTrackApplication.class</exclude>
+
+                        <!-- Configuraciones (sin lógica de negocio) -->
                         <exclude>**/config/**</exclude>
-                        <exclude>**/configuracion/**</exclude>
-                        <!-- Excluir DTOs (sin lógica) -->
+                        <exclude>**/infrastructure/config/**</exclude>
+
+                        <!-- DTOs (sin lógica de negocio) -->
                         <exclude>**/dto/**</exclude>
-                        <exclude>**/request/**</exclude>
-                        <exclude>**/response/**</exclude>
-                        <!-- Excluir entidades JPA (sin lógica) -->
-                        <exclude>**/entidades/**</exclude>
+                        <exclude>**/infrastructure/adapter/in/web/dto/**</exclude>
+
+                        <!-- Entidades JPA (sin lógica de negocio) -->
                         <exclude>**/entity/**</exclude>
+                        <exclude>**/infrastructure/adapter/out/persistence/entity/**</exclude>
+
+                        <!-- Eventos del dominio (son DTOs) -->
+                        <exclude>**/domain/event/**</exclude>
+
+                        <!-- Excepciones simples (sin lógica) -->
+                        <exclude>**/domain/exception/**</exclude>
+
+                        <!-- Migraciones SQL (sin lógica Java) -->
+                        <exclude>**/migration/**</exclude>
+                        <exclude>**/db/migration/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -243,12 +263,12 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.25</minimum>
+                                            <minimum>0.7</minimum>
                                         </limit>
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.20</minimum>
+                                            <minimum>0.70</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
