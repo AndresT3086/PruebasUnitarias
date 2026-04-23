@@ -35,6 +35,7 @@
             **/config/**,
             **/dto/**,
             **/entity/**,
+            **/port/**,
             **/LogiTrackApplication.java,
             **/migration/**,
             **/db/migration/**,
