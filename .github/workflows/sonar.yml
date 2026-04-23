@@ -2,9 +2,9 @@ name: SonarCloud Analysis - LogiTrack
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, feature/dtangarife]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, feature/dtangarife]
 
 jobs:
   sonar:
