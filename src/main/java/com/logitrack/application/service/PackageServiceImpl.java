@@ -231,7 +231,7 @@ public class PackageServiceImpl implements PackageService,
     public List<PackageResponse> findByStatus(PackageStatus status) {
         return packageRepository.findByStatus(status).stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -300,8 +300,7 @@ public class PackageServiceImpl implements PackageService,
                         .timestamp(loc.getTimestamp())
                         .latitude(loc.getLatitude())
                         .longitude(loc.getLongitude())
-                        .build())
-                .collect(Collectors.toList());
+                        .build()).toList();
 
         String currentLocation = pkg.getCurrentLocation()
                 .map(Location::getFormattedLocation)

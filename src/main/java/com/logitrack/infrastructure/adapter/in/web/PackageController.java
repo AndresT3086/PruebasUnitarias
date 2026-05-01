@@ -19,6 +19,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,11 +62,22 @@ public class PackageController {
     @Operation(summary = "Get package by ID", description = "Retrieves package details by its tracking ID")
     public ResponseEntity<ApiResponse<PackageResponse>> getPackage(
             @Parameter(description = "Package tracking ID", example = "LT-123456789")
-            @PathVariable String packageId) {
+            @PathVariable String packageId,
+            Authentication authentication) {
         log.debug("Fetching package: {}", packageId);
 
         PackageResponse response = packageService.getByIdOrThrow(packageId);
 
+        if (authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_VIEWER"))) {
+            if (!response.getRecipient().getEmail().equals(authentication.getName())) {
+                return ResponseEntity.status(403)
+                        .body(ApiResponse.<PackageResponse>builder()
+                                .success(false)
+                                .message("Access denied")
+                                .build());
+            }
+        }
         return ResponseEntity.ok(ApiResponse.<PackageResponse>builder()
                 .success(true)
                 .message("Package retrieved successfully")
@@ -127,12 +139,19 @@ public class PackageController {
             @Parameter(description = "Include deleted packages")
             @RequestParam(defaultValue = "false") Boolean includeDeleted,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
-            Pageable pageable) {
+            Pageable pageable,
+            Authentication authentication) {
 
         log.debug("Searching packages with filters - status: {}, recipient: {}", status, recipientEmail);
 
+        String effectiveEmail = recipientEmail;
+        if (authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_VIEWER"))) {
+            effectiveEmail = authentication.getName(); // su email del JWT
+        }
+
         PackageService.SearchCriteria criteria = new PackageService.SearchCriteria(
-                recipientName, recipientEmail, status, dateFrom, dateTo, includeDeleted
+                recipientName, effectiveEmail, status, dateFrom, dateTo, includeDeleted
         );
 
         Page<PackageResponse> response = packageService.searchPackages(criteria, pageable);

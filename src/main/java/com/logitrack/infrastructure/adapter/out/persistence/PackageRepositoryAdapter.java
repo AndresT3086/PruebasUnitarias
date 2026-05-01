@@ -9,6 +9,7 @@ import com.logitrack.infrastructure.adapter.out.persistence.entity.PackageEntity
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
@@ -53,17 +54,18 @@ public class PackageRepositoryAdapter implements PackageRepository {
 
     @Override
     public Page<Package> search(SearchCriteria criteria, Pageable pageable) {
-        PackageStatus statusEnum = criteria.status();
         boolean includeDeleted = criteria.deleted() != null && criteria.deleted();
+
+        Pageable unsorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
 
         Page<PackageEntity> entities = jpaRepository.searchPackages(
                 criteria.recipientName(),
                 criteria.recipientEmail(),
-                statusEnum,
+                criteria.status() != null ? criteria.status().name() : null,
                 criteria.createdFrom(),
                 criteria.createdTo(),
                 includeDeleted,
-                pageable
+                unsorted
         );
 
         return entities.map(this::toDomain);
