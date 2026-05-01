@@ -32,7 +32,7 @@ public class PackageEntity {
     @Column(name = "recipient_name", nullable = false, length = 100)
     private String recipientName;
 
-    @Column(name = "recipient_email", nullable = false, length = 255)
+    @Column(name = "recipient_email", columnDefinition = "VARCHAR(255)", nullable = false, length = 255)
     private String recipientEmail;
 
     @Column(name = "recipient_phone", nullable = false, length = 20)

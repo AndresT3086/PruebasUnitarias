@@ -89,7 +89,7 @@ class OutForDeliveryStateTest {
             outForDeliveryState.toDelivered(mockPackage);
 
             // Assert
-            verify(mockPackage).applyState(argThat(state -> state instanceof DeliveredState));
+            verify(mockPackage).applyState(argThat(DeliveredState.class::isInstance));
         }
 
         @Test
@@ -115,7 +115,7 @@ class OutForDeliveryStateTest {
             outForDeliveryState.toDeliveryFailed(mockPackage);
 
             // Assert
-            verify(mockPackage).applyState(argThat(state -> state instanceof DeliveryFailedState));
+            verify(mockPackage).applyState(argThat(DeliveryFailedState.class::isInstance));
         }
 
         @Test
@@ -141,7 +141,7 @@ class OutForDeliveryStateTest {
             outForDeliveryState.toReturned(mockPackage);
 
             // Assert
-            verify(mockPackage).applyState(argThat(state -> state instanceof ReturnedState));
+            verify(mockPackage).applyState(argThat(ReturnedState.class::isInstance));
         }
     }
 

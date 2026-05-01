@@ -18,19 +18,30 @@ public interface PackageJpaRepository extends JpaRepository<PackageEntity, Strin
 
     List<PackageEntity> findByStatusAndDeletedFalse(PackageStatus status);
 
-    @Query("""
-        SELECT p FROM PackageEntity p
-        WHERE (:recipientName IS NULL OR LOWER(p.recipientName) LIKE LOWER(CONCAT('%', :recipientName, '%')))
-        AND (:recipientEmail IS NULL OR LOWER(p.recipientEmail) = LOWER(:recipientEmail))
-        AND (:status IS NULL OR p.status = :status)
-        AND (:createdFrom IS NULL OR p.createdAt >= :createdFrom)
-        AND (:createdTo IS NULL OR p.createdAt <= :createdTo)
-        AND (:includeDeleted = true OR p.deleted = false)
-        """)
+    @Query(value = """
+    SELECT * FROM packages p
+    WHERE (:recipientName IS NULL OR p.recipient_name ILIKE CONCAT('%', CAST(:recipientName AS VARCHAR), '%'))
+    AND (:recipientEmail IS NULL OR p.recipient_email ILIKE CAST(:recipientEmail AS VARCHAR))
+    AND (CAST(:status AS VARCHAR) IS NULL OR p.status = CAST(:status AS VARCHAR))
+    AND (CAST(:createdFrom AS TIMESTAMP) IS NULL OR p.created_at >= CAST(:createdFrom AS TIMESTAMP))
+    AND (CAST(:createdTo AS TIMESTAMP) IS NULL OR p.created_at <= CAST(:createdTo AS TIMESTAMP))
+    AND (:includeDeleted = true OR p.deleted = false)
+    ORDER BY p.created_at DESC
+    """,
+            countQuery = """
+    SELECT COUNT(*) FROM packages p
+    WHERE (:recipientName IS NULL OR p.recipient_name ILIKE CONCAT('%', CAST(:recipientName AS VARCHAR), '%'))
+    AND (:recipientEmail IS NULL OR p.recipient_email ILIKE CAST(:recipientEmail AS VARCHAR))
+    AND (CAST(:status AS VARCHAR) IS NULL OR p.status = CAST(:status AS VARCHAR))
+    AND (CAST(:createdFrom AS TIMESTAMP) IS NULL OR p.created_at >= CAST(:createdFrom AS TIMESTAMP))
+    AND (CAST(:createdTo AS TIMESTAMP) IS NULL OR p.created_at <= CAST(:createdTo AS TIMESTAMP))
+    AND (:includeDeleted = true OR p.deleted = false)
+    """,
+            nativeQuery = true)
     Page<PackageEntity> searchPackages(
             @Param("recipientName") String recipientName,
             @Param("recipientEmail") String recipientEmail,
-            @Param("status") PackageStatus status,
+            @Param("status") String status,
             @Param("createdFrom") LocalDateTime createdFrom,
             @Param("createdTo") LocalDateTime createdTo,
             @Param("includeDeleted") boolean includeDeleted,

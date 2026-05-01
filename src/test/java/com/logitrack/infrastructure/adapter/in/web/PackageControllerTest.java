@@ -10,13 +10,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -200,8 +201,13 @@ class PackageControllerTest {
             String packageId = "LT-123456789";
             when(packageService.getByIdOrThrow(packageId)).thenReturn(packageResponse);
 
+            // Mock Authentication como ADMIN (ve todos los paquetes)
+            Authentication authentication = mock(Authentication.class);
+            doReturn(List.of(new SimpleGrantedAuthority("ROLE_ADMIN")))
+                    .when(authentication).getAuthorities();
+
             // Act
-            ResponseEntity<ApiResponse<PackageResponse>> response = packageController.getPackage(packageId);
+            ResponseEntity<ApiResponse<PackageResponse>> response = packageController.getPackage(packageId,authentication);
 
             // Assert
             assertThat(response.getStatusCode().value()).isEqualTo(200);

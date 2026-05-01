@@ -297,8 +297,14 @@ class PackageRepositoryAdapterTest {
             );
 
             Page<PackageEntity> entityPage = new PageImpl<>(Arrays.asList(testEntity), pageable, 1);
-            when(jpaRepository.searchPackages(anyString(), anyString(), any(PackageStatus.class),
-                    any(), any(), anyBoolean(), eq(pageable)))
+            when(jpaRepository.searchPackages(
+                    anyString(),
+                    anyString(),
+                    anyString(),
+                    any(),
+                    any(),
+                    anyBoolean(),
+                    eq(pageable)))
                     .thenReturn(entityPage);
 
             // Act
@@ -309,8 +315,14 @@ class PackageRepositoryAdapterTest {
             assertThat(result.getContent()).hasSize(1);
             assertThat(result.getContent().get(0).getId().getValue()).isEqualTo("LT-TEST12345");
 
-            verify(jpaRepository).searchPackages("John", "john@test.com", PackageStatus.CREATED,
-                    null, null, false, pageable);
+            verify(jpaRepository).searchPackages(
+                    "John",
+                    "john@test.com",
+                    PackageStatus.CREATED.name(),
+                    null,
+                    null,
+                    false,
+                    pageable);
         }
 
         @Test
