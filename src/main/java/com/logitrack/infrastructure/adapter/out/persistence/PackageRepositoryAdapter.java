@@ -68,14 +68,14 @@ public class PackageRepositoryAdapter implements PackageRepository {
 
     @Override
     public Page<Package> search(SearchCriteria criteria, Pageable pageable) {
-        boolean includeDeleted = criteria.deleted() != null && criteria.deleted();
+        boolean includeDeleted = Boolean.TRUE.equals(criteria.deleted());
 
         Pageable unsorted = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
 
         Page<PackageEntity> entities = jpaRepository.searchPackages(
                 criteria.recipientName(),
                 criteria.recipientEmail(),
-                criteria.status() != null ? criteria.status().name() : null,
+                Optional.ofNullable(criteria.status()).map(Enum::name).orElse(null),
                 criteria.createdFrom(),
                 criteria.createdTo(),
                 includeDeleted,
