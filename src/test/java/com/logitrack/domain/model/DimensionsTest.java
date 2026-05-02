@@ -445,13 +445,14 @@ class DimensionsTest {
         @Test
         @DisplayName("Should validate when using builder")
         void shouldValidateWhenUsingBuilder() {
-            // Arrange & Act & Assert
-            assertThatThrownBy(() ->
-                    Dimensions.builder()
-                            .height(new BigDecimal("-1"))
-                            .width(new BigDecimal("15"))
-                            .depth(new BigDecimal("10"))
-                            .build())
+            // Arrange: Preparamos el builder fuera de la aserción
+            Dimensions.DimensionsBuilder builder = Dimensions.builder()
+                    .height(new BigDecimal("-1"))
+                    .width(new BigDecimal("15"))
+                    .depth(new BigDecimal("10"));
+
+            // Act & Assert: Solo el metodo build() queda dentro de la lambda
+            assertThatThrownBy(builder::build)
                     .isInstanceOf(InvalidPackageDataException.class)
                     .hasMessage("Height must be positive");
         }
