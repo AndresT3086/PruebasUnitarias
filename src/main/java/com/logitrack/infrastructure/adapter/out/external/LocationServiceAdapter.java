@@ -5,6 +5,7 @@ import com.logitrack.infrastructure.adapter.out.external.client.GeocodeApiClient
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -14,9 +15,17 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class LocationServiceAdapter implements LocationService{
+public class LocationServiceAdapter implements LocationService {
 
     private final GeocodeApiClient geocodeClient;
+
+    /**
+     * Se inyecta a sí mismo (vía interfaz) para asegurar que las llamadas internas
+     * pasen por el proxy de Spring y activen las anotaciones como @Cacheable.
+     * Se usa @Lazy para evitar problemas de dependencia circular en algunas versiones de Spring.
+     */
+    @Lazy
+    private final LocationService self;
 
     @Override
     @Cacheable(value = "locations", key = "#city + '_' + #country")
@@ -72,7 +81,7 @@ public class LocationServiceAdapter implements LocationService{
     public boolean validateLocation(String city, String country) {
         log.debug("Validating location: {}, {}", city, country);
 
-        // Simple validation - check if location can be geocoded
-        return getLocationInfo(city, country).isPresent();
+        // Usamos 'self' en lugar de llamar directamente al metodo para que la caché funcione
+        return self.getLocationInfo(city, country).isPresent();
     }
 }
