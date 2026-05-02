@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -41,23 +42,21 @@ public class PackageServiceImpl implements PackageService,
     public PackageResponse createPackage(com.logitrack.application.dto.CreatePackageCommand command) {
         log.debug("Creating package for recipient: {}", command.getRecipientEmail());
 
-        // Obtener coordenadas reales
-        LocationService.LocationInfo locationInfo = locationService
-                .getLocationInfo(command.getCity(), command.getCountry())
-                .orElse(null);
+        Optional<LocationService.LocationInfo> locationInfo = locationService
+                .getLocationInfo(command.getCity(), command.getCountry());
 
-        if (locationInfo == null) {
+        if (locationInfo.isEmpty()) {
             log.warn("Could not geocode location: {}, {}", command.getCity(), command.getCountry());
         }
 
         Package pkg = packageFactory.createPackage(command);
 
         Location initialLocation = Location.create(
-                locationInfo != null ? locationInfo.city()      : command.getCity(),
-                locationInfo != null ? locationInfo.country()   : command.getCountry(),
+                locationInfo.map(LocationService.LocationInfo::city).orElse(command.getCity()),
+                locationInfo.map(LocationService.LocationInfo::country).orElse(command.getCountry()),
                 "Package created",
-                locationInfo != null ? locationInfo.latitude()  : null,
-                locationInfo != null ? locationInfo.longitude() : null
+                locationInfo.map(LocationService.LocationInfo::latitude).orElse(null),
+                locationInfo.map(LocationService.LocationInfo::longitude).orElse(null)
         );
         pkg.addLocation(initialLocation);
 
@@ -122,19 +121,18 @@ public class PackageServiceImpl implements PackageService,
 
         Package pkg = getPackageOrThrow(command.getPackageId());
 
-        LocationService.LocationInfo locationInfo = null;
+        Optional<LocationService.LocationInfo> locationInfo;
         if (command.getLatitude() != null && command.getLongitude() != null) {
             locationInfo = locationService.getLocationByCoordinates(
-                    command.getLatitude(),
-                    command.getLongitude()
-            ).orElse(null);
+                    command.getLatitude(), command.getLongitude());
         } else {
             validateLocation(command.getCity(), command.getCountry());
+            locationInfo = Optional.empty();
         }
 
         Location location = Location.create(
-                locationInfo != null ? locationInfo.city() : command.getCity(),
-                locationInfo != null ? locationInfo.country() : command.getCountry(),
+                locationInfo.map(LocationService.LocationInfo::city).orElse(command.getCity()),
+                locationInfo.map(LocationService.LocationInfo::country).orElse(command.getCountry()),
                 command.getDescription(),
                 command.getLatitude(),
                 command.getLongitude()
