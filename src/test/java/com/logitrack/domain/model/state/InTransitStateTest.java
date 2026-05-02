@@ -87,7 +87,7 @@ class InTransitStateTest {
             inTransitState.toOutForDelivery(mockPackage);
 
             // Assert
-            verify(mockPackage).applyState(argThat(state -> state instanceof OutForDeliveryState));
+            verify(mockPackage).applyState(argThat(OutForDeliveryState.class::isInstance));
         }
     }
 

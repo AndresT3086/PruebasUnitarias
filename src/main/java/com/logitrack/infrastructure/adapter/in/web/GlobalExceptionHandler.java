@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
                             .message(error.getDefaultMessage())
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ErrorResponse.builder()

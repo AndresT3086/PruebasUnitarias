@@ -75,7 +75,7 @@ class PackageTest {
                     .weight(validWeight);
 
             // Act & Assert
-            assertThatThrownBy(() -> builder.build())
+            assertThatThrownBy(builder::build)
                     .isInstanceOf(InvalidPackageDataException.class)
                     .hasMessageContaining("Recipient cannot be null");
         }
@@ -89,7 +89,7 @@ class PackageTest {
                     .weight(validWeight);
 
             // Act & Assert
-            assertThatThrownBy(() -> builder.build())
+            assertThatThrownBy(builder::build)
                     .isInstanceOf(InvalidPackageDataException.class)
                     .hasMessageContaining("Dimensions cannot be null");
         }
@@ -200,7 +200,7 @@ class PackageTest {
 
             // Assert
             assertThat(pkg.getCurrentLocation()).isPresent();
-            assertThat(pkg.getCurrentLocation().get()).isEqualTo(location);
+            assertThat(pkg.getCurrentLocation()).contains(location);
             assertThat(pkg.getLocationHistory().size()).isEqualTo(1);
         }
 

@@ -87,7 +87,7 @@ class CreatedStateTest {
             createdState.toInTransit(mockPackage);
 
             // Assert
-            verify(mockPackage).applyState(argThat(state -> state instanceof InTransitState));
+            verify(mockPackage).applyState(argThat(InTransitState.class::isInstance));
         }
     }
 
