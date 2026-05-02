@@ -68,15 +68,12 @@ public class PackageController {
 
         PackageResponse response = packageService.getByIdOrThrow(packageId);
 
-        if (authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_VIEWER"))) {
-            if (!response.getRecipient().getEmail().equals(authentication.getName())) {
-                return ResponseEntity.status(403)
-                        .body(ApiResponse.<PackageResponse>builder()
-                                .success(false)
-                                .message("Access denied")
-                                .build());
-            }
+        if (isViewer(authentication) && !response.getRecipient().getEmail().equals(authentication.getName())) {
+            return ResponseEntity.status(403)
+                    .body(ApiResponse.<PackageResponse>builder()
+                            .success(false)
+                            .message("Access denied")
+                            .build());
         }
         return ResponseEntity.ok(ApiResponse.<PackageResponse>builder()
                 .success(true)
@@ -144,11 +141,7 @@ public class PackageController {
 
         log.debug("Searching packages with filters - status: {}, recipient: {}", status, recipientEmail);
 
-        String effectiveEmail = recipientEmail;
-        if (authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_VIEWER"))) {
-            effectiveEmail = authentication.getName(); // su email del JWT
-        }
+        String effectiveEmail = isViewer(authentication) ? authentication.getName() : recipientEmail;
 
         PackageService.SearchCriteria criteria = new PackageService.SearchCriteria(
                 recipientName, effectiveEmail, status, dateFrom, dateTo, includeDeleted
@@ -177,6 +170,11 @@ public class PackageController {
                 .message(String.format("Found %d packages with status %s", response.size(), status))
                 .data(response)
                 .build());
+    }
+
+    private boolean isViewer(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_VIEWER"));
     }
 
     @DeleteMapping("/{packageId}")
