@@ -16,6 +16,7 @@ import reactor.util.retry.Retry;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -116,15 +117,13 @@ public class GeocodeApiClient {
         }
     }
 
+    private static final Set<Integer> RETRYABLE_STATUS_CODES = Set.of(429, 408);
+
     private boolean shouldRetry(Throwable throwable) {
-        if (throwable instanceof WebClientResponseException) {
-            WebClientResponseException e = (WebClientResponseException) throwable;
-            // Retry on 5xx errors and specific 4xx errors
+        if (throwable instanceof WebClientResponseException e) {
             return e.getStatusCode().is5xxServerError() ||
-                    e.getStatusCode().value() == 429 || // Too Many Requests
-                    e.getStatusCode().value() == 408;   // Request Timeout
+                    RETRYABLE_STATUS_CODES.contains(e.getStatusCode().value());
         }
-        // Retry on timeout and connection errors
         return throwable instanceof java.util.concurrent.TimeoutException ||
                 throwable instanceof java.net.ConnectException;
     }
