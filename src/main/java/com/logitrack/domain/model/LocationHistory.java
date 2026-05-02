@@ -21,17 +21,18 @@ public class LocationHistory {
         if (location == null) {
             throw new InvalidPackageDataException("Location cannot be null");
         }
+        validateChronologicalOrder(location);
+        locations.add(location);
+    }
 
-        // Validate chronological order
-        if (!locations.isEmpty()) {
-            Location lastLocation = locations.get(locations.size() - 1);
-            if (location.getTimestamp().isBefore(lastLocation.getTimestamp())) {
+    private void validateChronologicalOrder(Location location) {
+        getCurrentLocation().ifPresent(last -> {
+            if (location.getTimestamp().isBefore(last.getTimestamp())) {
                 throw new InvalidPackageDataException(
                         "New location timestamp must be after the last location"
                 );
             }
-        }
-        locations.add(location);
+        });
     }
 
     public List<Location> getLocations() {
