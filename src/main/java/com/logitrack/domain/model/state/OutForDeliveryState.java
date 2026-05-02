@@ -4,7 +4,13 @@ import com.logitrack.domain.exception.InvalidStateTransitionException;
 import com.logitrack.domain.model.Package;
 import com.logitrack.domain.model.PackageStatus;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 public class OutForDeliveryState implements PackageState{
+
+    private static final Set<PackageStatus> ALLOWED_TRANSITIONS =
+            EnumSet.of(PackageStatus.DELIVERED, PackageStatus.DELIVERY_FAILED, PackageStatus.RETURNED);
 
     @Override
     public PackageStatus getStatus() {
@@ -40,8 +46,6 @@ public class OutForDeliveryState implements PackageState{
 
     @Override
     public boolean canTransitionTo(PackageStatus status) {
-        return status == PackageStatus.DELIVERED ||
-                status == PackageStatus.DELIVERY_FAILED ||
-                status == PackageStatus.RETURNED;
+        return ALLOWED_TRANSITIONS.contains(status);
     }
 }
