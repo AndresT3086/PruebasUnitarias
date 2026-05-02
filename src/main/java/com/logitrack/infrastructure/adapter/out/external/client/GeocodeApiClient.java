@@ -66,7 +66,7 @@ public class GeocodeApiClient {
                                             retrySignal.totalRetries() + 1)))
                     .block();
 
-            if (response != null && response.getResults() != null && !response.getResults().isEmpty()) {
+            if (hasResults(response)) {
                 log.info("Successfully geocoded location: {}", query);
                 return Optional.of(response);
             }
@@ -103,7 +103,7 @@ public class GeocodeApiClient {
                             .filter(this::shouldRetry))
                     .block();
 
-            if (response != null && response.getResults() != null && !response.getResults().isEmpty()) {
+            if (hasResults(response)) {
                 log.info("Successfully reverse geocoded coordinates: {}", coordinates);
                 return Optional.of(response);
             }
@@ -118,6 +118,10 @@ public class GeocodeApiClient {
     }
 
     private static final Set<Integer> RETRYABLE_STATUS_CODES = Set.of(429, 408);
+
+    private boolean hasResults(GeocodeResponse response) {
+        return response != null && response.getResults() != null && !response.getResults().isEmpty();
+    }
 
     private boolean shouldRetry(Throwable throwable) {
         if (throwable instanceof WebClientResponseException e) {
