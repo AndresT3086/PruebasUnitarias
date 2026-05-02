@@ -10,9 +10,21 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 @Getter
 public class Package {
+
+    private static final Map<PackageStatus, BiConsumer<PackageState, Package>> STATUS_TRANSITIONS =
+            new EnumMap<>(PackageStatus.class);
+
+    static {
+        STATUS_TRANSITIONS.put(PackageStatus.IN_TRANSIT, PackageState::toInTransit);
+        STATUS_TRANSITIONS.put(PackageStatus.OUT_FOR_DELIVERY, PackageState::toOutForDelivery);
+        STATUS_TRANSITIONS.put(PackageStatus.DELIVERED, PackageState::toDelivered);
+        STATUS_TRANSITIONS.put(PackageStatus.DELIVERY_FAILED, PackageState::toDeliveryFailed);
+        STATUS_TRANSITIONS.put(PackageStatus.RETURNED, PackageState::toReturned);
+    }
 
     private final PackageId id;
     private final Recipient recipient;
@@ -78,14 +90,7 @@ public class Package {
             );
         }
 
-        switch (newStatus) {
-            case IN_TRANSIT -> state.toInTransit(this);
-            case OUT_FOR_DELIVERY -> state.toOutForDelivery(this);
-            case DELIVERED -> state.toDelivered(this);
-            case DELIVERY_FAILED -> state.toDeliveryFailed(this);
-            case RETURNED -> state.toReturned(this);
-            default -> throw new InvalidStateTransitionException("Unknown status: " + newStatus);
-        }
+        applyTransition(newStatus);
 
         this.updatedAt = LocalDateTime.now();
 
@@ -95,6 +100,14 @@ public class Package {
                 .newStatus(newStatus)
                 .occurredAt(this.updatedAt)
                 .build());
+    }
+
+    private void applyTransition(PackageStatus newStatus) {
+        BiConsumer<PackageState, Package> transition = STATUS_TRANSITIONS.get(newStatus);
+        if (transition == null) {
+            throw new InvalidStateTransitionException("Unknown status: " + newStatus);
+        }
+        transition.accept(state, this);
     }
 
     public void addLocation(Location location) {
