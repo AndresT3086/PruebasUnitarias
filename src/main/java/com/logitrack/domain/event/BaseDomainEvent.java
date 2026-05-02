@@ -3,6 +3,7 @@ import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Getter
@@ -15,7 +16,7 @@ public abstract class BaseDomainEvent implements DomainEvent {
     protected BaseDomainEvent(String aggregateId, LocalDateTime occurredAt) {
         this.eventId = UUID.randomUUID().toString();
         this.aggregateId = aggregateId;
-        this.occurredAt = occurredAt != null ? occurredAt : LocalDateTime.now();
+        this.occurredAt = Optional.ofNullable(occurredAt).orElseGet(LocalDateTime::now);
     }
 
 }

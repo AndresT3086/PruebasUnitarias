@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 @Getter
@@ -49,7 +50,7 @@ public class Package {
     private final List<DomainEvent> domainEvents;
 
     private Package(Builder builder) {
-        this.id = builder.id != null ? builder.id : PackageId.generate();
+        this.id = Optional.ofNullable(builder.id).orElseGet(PackageId::generate);
         this.recipient = validateNotNull(builder.recipient, "Recipient");
         this.dimensions = validateNotNull(builder.dimensions, "Dimensions");
         this.weight = validateNotNull(builder.weight, "Weight");

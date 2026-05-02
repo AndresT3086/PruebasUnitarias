@@ -40,8 +40,7 @@ public class LocationHistory {
     }
 
     public Optional<Location> getCurrentLocation() {
-        return locations.isEmpty() ? Optional.empty() :
-                Optional.of(locations.get(locations.size() - 1));
+        return locations.stream().reduce((first, last) -> last);
     }
 
     public Optional<Location> getLocationAt(int index) {
