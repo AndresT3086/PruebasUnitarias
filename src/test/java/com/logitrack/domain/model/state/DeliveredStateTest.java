@@ -276,8 +276,9 @@ class DeliveredStateTest {
             PackageStatus status2 = state2.getStatus();
 
             // Assert - Both instances should behave identically
-            assertThat(status1).isEqualTo(status2);
-            assertThat(status1).isEqualTo(PackageStatus.DELIVERED);
+            assertThat(status1)
+                    .isEqualTo(status2)
+                    .isEqualTo(PackageStatus.DELIVERED);
         }
 
         @Test
