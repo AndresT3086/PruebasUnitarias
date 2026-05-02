@@ -20,6 +20,14 @@ import java.util.Map;
 @Tag(name = "Authentication", description = "Authentication endpoints")
 public class AuthController {
 
+    private record UserEntry(String password, List<String> roles) {}
+
+    private static final Map<String, UserEntry> USER_STORE = Map.of(
+            "admin@logitrack.com",    new UserEntry("admin123",    List.of("ADMIN")),
+            "operator@logitrack.com", new UserEntry("operator123", List.of("OPERATOR")),
+            "viewer@logitrack.com",   new UserEntry("viewer123",   List.of("VIEWER"))
+    );
+
     private final JwtTokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
 
@@ -28,25 +36,14 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> login(
             @Valid @RequestBody LoginRequest request) {
 
-        String token = null;
-        List<String> roles = null;
-
-        if ("admin@logitrack.com".equals(request.email) &&
-                "admin123".equals(request.password)) {
-            roles = List.of("ADMIN");
-            token = tokenProvider.generateToken(request.email, roles);
-        } else if ("operator@logitrack.com".equals(request.email) &&
-                "operator123".equals(request.password)) {
-            roles = List.of("OPERATOR");
-            token = tokenProvider.generateToken(request.email, roles);
-        } else if ("viewer@logitrack.com".equals(request.email) &&
-                "viewer123".equals(request.password)) {
-            roles = List.of("VIEWER");
-            token = tokenProvider.generateToken(request.email, roles);
-        } else {
+        UserEntry entry = USER_STORE.get(request.email);
+        if (entry == null || !entry.password().equals(request.password)) {
             return ResponseEntity.status(401)
                     .body(Map.of("error", "Invalid credentials"));
         }
+
+        List<String> roles = entry.roles();
+        String token = tokenProvider.generateToken(request.email, roles);
 
         log.info("User {} authenticated with roles: {}", request.email, roles);
 
