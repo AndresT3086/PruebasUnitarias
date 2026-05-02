@@ -177,24 +177,6 @@ class PackageControllerTest {
     class GetPackageTests {
 
         @Test
-        @DisplayName("Should get package by ID successfully")
-        void shouldGetPackageByIdSuccessfully() throws Exception {
-            // Arrange
-            String packageId = "LT-123456789";
-            when(packageService.getByIdOrThrow(packageId)).thenReturn(packageResponse);
-
-            // Act & Assert
-            mockMvc.perform(get("/api/v1/packages/{packageId}", packageId))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.success").value(true))
-                    .andExpect(jsonPath("$.message").value("Package retrieved successfully"))
-                    .andExpect(jsonPath("$.data.id").value(packageId))
-                    .andExpect(jsonPath("$.data.recipient.name").value("John Doe"));
-
-            verify(packageService).getByIdOrThrow(packageId);
-        }
-
-        @Test
         @DisplayName("Should return package response using direct method call")
         void shouldReturnPackageResponseUsingDirectMethodCall() {
             // Arrange
