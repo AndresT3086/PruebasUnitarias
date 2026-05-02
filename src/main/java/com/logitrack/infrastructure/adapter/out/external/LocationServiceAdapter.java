@@ -31,7 +31,7 @@ public class LocationServiceAdapter implements LocationService{
 
                     return new LocationInfo(
                             resolveCity(components, city),
-                            components.getCountry() != null ? components.getCountry() : country,
+                            Optional.ofNullable(components.getCountry()).orElse(country),
                             components.getState(),
                             geometry.getLat(),
                             geometry.getLng(),
@@ -52,7 +52,7 @@ public class LocationServiceAdapter implements LocationService{
 
                     return new LocationInfo(
                             resolveCity(components, "Unknown"),
-                            components.getCountry() != null ? components.getCountry() : "Unknown",
+                            Optional.ofNullable(components.getCountry()).orElse("Unknown"),
                             components.getState(),
                             latitude,
                             longitude,
