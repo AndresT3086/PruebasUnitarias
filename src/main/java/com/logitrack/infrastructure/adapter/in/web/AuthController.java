@@ -36,7 +36,7 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> login(
             @Valid @RequestBody LoginRequest request) {
 
-        UserEntry entry = USER_STORE.get(request.email);
+        UserEntry entry = request.email != null ? USER_STORE.get(request.email) : null;
         if (entry == null || !entry.password().equals(request.password)) {
             return ResponseEntity.status(401)
                     .body(Map.of("error", "Invalid credentials"));
