@@ -28,48 +28,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handlePackageNotFound(
             PackageNotFoundException ex, HttpServletRequest request) {
         log.warn("Package not found: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.<Void>builder()
-                        .success(false)
-                        .message(ex.getMessage())
-                        .error(ApiResponse.ErrorDetails.builder()
-                                .code(ex.getCode())
-                                .description("The requested package could not be found")
-                                .build())
-                        .build());
+        return errorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), ex.getCode(),
+                "The requested package could not be found");
     }
 
     @ExceptionHandler(InvalidPackageDataException.class)
     public ResponseEntity<ApiResponse<Void>> handleInvalidPackageData(
             InvalidPackageDataException ex) {
         log.warn("Invalid package data: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.<Void>builder()
-                        .success(false)
-                        .message(ex.getMessage())
-                        .error(ApiResponse.ErrorDetails.builder()
-                                .code(ex.getCode())
-                                .description("The provided package data is invalid")
-                                .build())
-                        .build());
+        return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), ex.getCode(),
+                "The provided package data is invalid");
     }
 
     @ExceptionHandler(InvalidStateTransitionException.class)
     public ResponseEntity<ApiResponse<Void>> handleInvalidStateTransition(
             InvalidStateTransitionException ex) {
         log.warn("Invalid state transition: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.<Void>builder()
-                        .success(false)
-                        .message(ex.getMessage())
-                        .error(ApiResponse.ErrorDetails.builder()
-                                .code(ex.getCode())
-                                .description("The requested state transition is not allowed")
-                                .build())
-                        .build());
+        return errorResponse(HttpStatus.CONFLICT, ex.getMessage(), ex.getCode(),
+                "The requested state transition is not allowed");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -81,26 +57,28 @@ public class GlobalExceptionHandler {
         List<ErrorResponse.FieldError> fieldErrors = ex.getBindingResult()
                 .getAllErrors().stream()
                 .map(error -> {
-                    String fieldName = error instanceof FieldError ?
-                            ((FieldError) error).getField() : error.getObjectName();
+                    if (error instanceof FieldError fe) {
+                        return ErrorResponse.FieldError.builder()
+                                .field(fe.getField())
+                                .message(fe.getDefaultMessage())
+                                .rejectedValue(fe.getRejectedValue())
+                                .build();
+                    }
                     return ErrorResponse.FieldError.builder()
-                            .field(fieldName)
+                            .field(error.getObjectName())
                             .message(error.getDefaultMessage())
-                            .rejectedValue(error instanceof FieldError ?
-                                    ((FieldError) error).getRejectedValue() : null)
                             .build();
                 })
                 .collect(Collectors.toList());
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .message("Validation failed")
-                .errorCode("VALIDATION_ERROR")
-                .status(HttpStatus.BAD_REQUEST.value())
-                .path(request.getRequestURI())
-                .fieldErrors(fieldErrors)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ErrorResponse.builder()
+                        .message("Validation failed")
+                        .errorCode("VALIDATION_ERROR")
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .path(request.getRequestURI())
+                        .fieldErrors(fieldErrors)
+                        .build());
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -109,48 +87,24 @@ public class GlobalExceptionHandler {
         String message = String.format("Invalid value '%s' for parameter '%s'",
                 ex.getValue(), ex.getName());
         log.warn("Type mismatch: {}", message);
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.<Void>builder()
-                        .success(false)
-                        .message(message)
-                        .error(ApiResponse.ErrorDetails.builder()
-                                .code("TYPE_MISMATCH")
-                                .description("The provided value has an incorrect type")
-                                .build())
-                        .build());
+        return errorResponse(HttpStatus.BAD_REQUEST, message, "TYPE_MISMATCH",
+                "The provided value has an incorrect type");
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiResponse<Void>> handleAccessDenied(
             AccessDeniedException ex) {
         log.warn("Access denied: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.<Void>builder()
-                        .success(false)
-                        .message("Access denied")
-                        .error(ApiResponse.ErrorDetails.builder()
-                                .code("ACCESS_DENIED")
-                                .description("You don't have permission to access this resource")
-                                .build())
-                        .build());
+        return errorResponse(HttpStatus.FORBIDDEN, "Access denied", "ACCESS_DENIED",
+                "You don't have permission to access this resource");
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadCredentials(
             BadCredentialsException ex) {
         log.warn("Authentication failed: {}", ex.getMessage());
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.<Void>builder()
-                        .success(false)
-                        .message("Authentication failed")
-                        .error(ApiResponse.ErrorDetails.builder()
-                                .code("BAD_CREDENTIALS")
-                                .description("Invalid username or password")
-                                .build())
-                        .build());
+        return errorResponse(HttpStatus.UNAUTHORIZED, "Authentication failed", "BAD_CREDENTIALS",
+                "Invalid username or password");
     }
 
     @ExceptionHandler(Exception.class)
@@ -158,14 +112,19 @@ public class GlobalExceptionHandler {
             Exception ex, HttpServletRequest request) {
         log.error("Unexpected error processing request to {}",
                 request.getRequestURI(), ex);
+        return errorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred",
+                "INTERNAL_ERROR", "Please try again later or contact support");
+    }
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    private ResponseEntity<ApiResponse<Void>> errorResponse(
+            HttpStatus status, String message, String code, String description) {
+        return ResponseEntity.status(status)
                 .body(ApiResponse.<Void>builder()
                         .success(false)
-                        .message("An unexpected error occurred")
+                        .message(message)
                         .error(ApiResponse.ErrorDetails.builder()
-                                .code("INTERNAL_ERROR")
-                                .description("Please try again later or contact support")
+                                .code(code)
+                                .description(description)
                                 .build())
                         .build());
     }
