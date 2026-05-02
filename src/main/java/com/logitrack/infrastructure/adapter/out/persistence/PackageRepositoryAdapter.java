@@ -13,15 +13,29 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class PackageRepositoryAdapter implements PackageRepository {
 
+    private static final Map<PackageStatus, Supplier<PackageState>> STATE_FACTORIES =
+            new EnumMap<>(PackageStatus.class);
+
+    static {
+        STATE_FACTORIES.put(PackageStatus.CREATED, CreatedState::new);
+        STATE_FACTORIES.put(PackageStatus.IN_TRANSIT, InTransitState::new);
+        STATE_FACTORIES.put(PackageStatus.OUT_FOR_DELIVERY, OutForDeliveryState::new);
+        STATE_FACTORIES.put(PackageStatus.DELIVERED, DeliveredState::new);
+        STATE_FACTORIES.put(PackageStatus.DELIVERY_FAILED, DeliveryFailedState::new);
+        STATE_FACTORIES.put(PackageStatus.RETURNED, ReturnedState::new);
+    }
 
     private final PackageJpaRepository jpaRepository;
 
@@ -177,13 +191,10 @@ public class PackageRepositoryAdapter implements PackageRepository {
     }
 
     private PackageState createState(PackageStatus status) {
-        return switch (status) {
-            case CREATED -> new CreatedState();
-            case IN_TRANSIT -> new InTransitState();
-            case OUT_FOR_DELIVERY -> new OutForDeliveryState();
-            case DELIVERED -> new DeliveredState();
-            case DELIVERY_FAILED -> new DeliveryFailedState();
-            case RETURNED -> new ReturnedState();
-        };
+        Supplier<PackageState> factory = STATE_FACTORIES.get(status);
+        if (factory == null) {
+            throw new IllegalArgumentException("Unknown status: " + status);
+        }
+        return factory.get();
     }
 }
