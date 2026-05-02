@@ -190,10 +190,8 @@ public class PackageServiceImpl implements PackageService,
     @Override
     public Page<PackageResponse> searchPackages(PackageService.SearchCriteria criteria,
                                                 Pageable pageable) {
-        LocalDateTime dateFrom = criteria.dateFrom() != null ?
-                LocalDateTime.parse(criteria.dateFrom(), DATE_FORMATTER) : null;
-        LocalDateTime dateTo = criteria.dateTo() != null ?
-                LocalDateTime.parse(criteria.dateTo(), DATE_FORMATTER) : null;
+        LocalDateTime dateFrom = parseDate(criteria.dateFrom());
+        LocalDateTime dateTo = parseDate(criteria.dateTo());
 
         PackageRepository.SearchCriteria repoCriteria =
                 new PackageRepository.SearchCriteria(
@@ -247,6 +245,12 @@ public class PackageServiceImpl implements PackageService,
         packageRepository.save(pkg);
 
         log.info("Package {} soft deleted", packageId);
+    }
+
+    private LocalDateTime parseDate(String dateStr) {
+        return Optional.ofNullable(dateStr)
+                .map(d -> LocalDateTime.parse(d, DATE_FORMATTER))
+                .orElse(null);
     }
 
     private void validateLocation(String city, String country) {
