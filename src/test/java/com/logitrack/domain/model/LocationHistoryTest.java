@@ -374,7 +374,7 @@ class LocationHistoryTest {
             assertThatThrownBy(() -> locations.remove(0))
                     .isInstanceOf(UnsupportedOperationException.class);
 
-            assertThatThrownBy(locations::clear)
+            assertThatThrownBy(() -> locations.clear())
                     .isInstanceOf(UnsupportedOperationException.class);
         }
     }

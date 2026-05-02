@@ -60,7 +60,7 @@ public class GeocodeApiClient {
                     .bodyToMono(GeocodeResponse.class)
                     .timeout(timeout)
                     .retryWhen(Retry.backoff(maxRetries, Duration.ofSeconds(1))
-                            .filter(this::shouldRetry)
+                            .filter(throwable -> shouldRetry(throwable))
                             .doBeforeRetry(retrySignal ->
                                     log.warn("Retrying geocode request, attempt: {}",
                                             retrySignal.totalRetries() + 1)))
