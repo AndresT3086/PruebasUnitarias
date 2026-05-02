@@ -4,6 +4,7 @@ import com.logitrack.domain.exception.InvalidPackageDataException;
 import lombok.Builder;
 import lombok.Value;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Value
@@ -97,13 +98,10 @@ public class Recipient {
 
         public String getFullAddress() {
             StringBuilder sb = new StringBuilder();
-            sb.append(street).append(", ");
-            sb.append(city);
-            if (state != null && !state.isEmpty()) {
-                sb.append(", ").append(state);
-            }
-            sb.append(", ").append(country);
-            sb.append(" ").append(postalCode);
+            sb.append(street).append(", ").append(city);
+            Optional.ofNullable(state).filter(s -> !s.isEmpty())
+                    .ifPresent(s -> sb.append(", ").append(s));
+            sb.append(", ").append(country).append(" ").append(postalCode);
             return sb.toString();
         }
     }
