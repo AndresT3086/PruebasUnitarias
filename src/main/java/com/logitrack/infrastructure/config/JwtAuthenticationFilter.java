@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = getTokenFromRequest(request);
 
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
+            if (isValidToken(jwt)) {
                 String username = tokenProvider.getUsernameFromToken(jwt);
                 List<String> roles = tokenProvider.getRolesFromToken(jwt);
 
@@ -55,11 +55,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    private boolean isValidToken(String jwt) {
+        return StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt);
+    }
+
     private String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+        if (isBearerToken(bearerToken)) {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    private boolean isBearerToken(String bearerToken) {
+        return StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ");
     }
 }
