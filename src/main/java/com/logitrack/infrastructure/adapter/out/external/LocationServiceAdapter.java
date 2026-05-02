@@ -7,7 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -27,17 +29,13 @@ public class LocationServiceAdapter implements LocationService{
                     var components = result.getComponents();
                     var geometry = result.getGeometry();
 
-                    String resolvedCity = components.getCity() != null ? components.getCity() :
-                            components.getTown() != null ? components.getTown() :
-                                    components.getVillage() != null ? components.getVillage() : city;
-
                     return new LocationInfo(
-                            resolvedCity,
+                            resolveCity(components, city),
                             components.getCountry() != null ? components.getCountry() : country,
                             components.getState(),
                             geometry.getLat(),
                             geometry.getLng(),
-                            null // Timezone can be added if needed
+                            null
                     );
                 });
     }
@@ -52,12 +50,8 @@ public class LocationServiceAdapter implements LocationService{
                     var result = response.getResults().get(0);
                     var components = result.getComponents();
 
-                    String city = components.getCity() != null ? components.getCity() :
-                            components.getTown() != null ? components.getTown() :
-                                    components.getVillage() != null ? components.getVillage() : "Unknown";
-
                     return new LocationInfo(
-                            city,
+                            resolveCity(components, "Unknown"),
                             components.getCountry() != null ? components.getCountry() : "Unknown",
                             components.getState(),
                             latitude,
@@ -65,6 +59,13 @@ public class LocationServiceAdapter implements LocationService{
                             null
                     );
                 });
+    }
+
+    private String resolveCity(GeocodeApiClient.GeocodeResponse.Components components, String fallback) {
+        return Stream.of(components.getCity(), components.getTown(), components.getVillage())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(fallback);
     }
 
     @Override
