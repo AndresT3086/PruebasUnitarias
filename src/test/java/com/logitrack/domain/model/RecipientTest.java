@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.*;
@@ -87,15 +88,16 @@ class RecipientTest {
             assertThat(recipient.getName()).isEqualTo("John Doe");
         }
 
-        @Test
-        @DisplayName("Should throw exception for null name")
-        void shouldThrowExceptionForNullName() {
+        @ParameterizedTest
+        @NullSource
+        @ValueSource(strings = {"", "   "})
+        @DisplayName("Should throw exception for invalid recipient names")
+        void shouldThrowExceptionForInvalidRecipientNames(String invalidName) {
             // Arrange
-            String name = null;
             Recipient.Address address = createValidAddress();
 
             // Act & Assert
-            assertThatThrownBy(() -> new Recipient(name, "john@test.com", "+1234567890", address))
+            assertThatThrownBy(() -> new Recipient(invalidName, "john@test.com", "+1234567890", address))
                     .isInstanceOf(InvalidPackageDataException.class)
                     .hasMessage("Recipient name is required");
         }
