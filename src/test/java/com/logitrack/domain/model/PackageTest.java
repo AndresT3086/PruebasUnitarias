@@ -44,6 +44,22 @@ class PackageTest {
                 .weight(validWeight);
     }
 
+    private Recipient createValidRecipient() {
+        Recipient.Address address = new Recipient.Address(
+                "123 Main St",
+                "Bogotá",
+                "Cundinamarca",
+                "Colombia",
+                "110111"
+        );
+        return new Recipient(
+                "John Doe",
+                "john.doe@example.com",
+                "+1234567890",
+                address
+        );
+    }
+
     @Nested
     @DisplayName("Package Creation Tests")
     class PackageCreationTests {
@@ -213,6 +229,101 @@ class PackageTest {
             assertThatThrownBy(() -> pkg.addLocation(nullLocation))
                     .isInstanceOf(InvalidPackageDataException.class)
                     .hasMessageContaining("Location cannot be null");
+        }
+    }
+
+    @Nested
+    @DisplayName("Apply Transition Tests")
+    class ApplyTransitionTests {
+
+        private Package createValidPackage() {
+            return Package.builder()
+                    .recipient(createValidRecipient())
+                    .dimensions(Dimensions.of(10.0, 20.0, 30.0))
+                    .weight(Weight.ofKilograms(5.0))
+                    .build();
+        }
+
+        @Test
+        @DisplayName("Should transition to IN_TRANSIT")
+        void shouldTransitionToInTransit() {
+            // Arrange
+            Package pkg = createValidPackage();
+
+            // Act
+            pkg.changeStatus(PackageStatus.IN_TRANSIT);
+
+            // Assert
+            assertThat(pkg.getStatus()).isEqualTo(PackageStatus.IN_TRANSIT);
+        }
+
+        @Test
+        @DisplayName("Should transition to OUT_FOR_DELIVERY")
+        void shouldTransitionToOutForDelivery() {
+            // Arrange
+            Package pkg = createValidPackage();
+            pkg.changeStatus(PackageStatus.IN_TRANSIT);
+
+            // Act
+            pkg.changeStatus(PackageStatus.OUT_FOR_DELIVERY);
+
+            // Assert
+            assertThat(pkg.getStatus()).isEqualTo(PackageStatus.OUT_FOR_DELIVERY);
+        }
+
+        @Test
+        @DisplayName("Should transition to DELIVERED")
+        void shouldTransitionToDelivered() {
+            // Arrange
+            Package pkg = createValidPackage();
+            pkg.changeStatus(PackageStatus.IN_TRANSIT);
+            pkg.changeStatus(PackageStatus.OUT_FOR_DELIVERY);
+
+            // Act
+            pkg.changeStatus(PackageStatus.DELIVERED);
+
+            // Assert
+            assertThat(pkg.getStatus()).isEqualTo(PackageStatus.DELIVERED);
+        }
+
+        @Test
+        @DisplayName("Should transition to DELIVERY_FAILED")
+        void shouldTransitionToDeliveryFailed() {
+            // Arrange
+            Package pkg = createValidPackage();
+            pkg.changeStatus(PackageStatus.IN_TRANSIT);
+            pkg.changeStatus(PackageStatus.OUT_FOR_DELIVERY);
+
+            // Act
+            pkg.changeStatus(PackageStatus.DELIVERY_FAILED);
+
+            // Assert
+            assertThat(pkg.getStatus()).isEqualTo(PackageStatus.DELIVERY_FAILED);
+        }
+
+        @Test
+        @DisplayName("Should not change status when transitioning to same status")
+        void shouldNotChangeStatusWhenTransitioningToSameStatus() {
+            // Arrange
+            Package pkg = createValidPackage();
+            pkg.changeStatus(PackageStatus.IN_TRANSIT);
+
+            // Act
+            pkg.changeStatus(PackageStatus.IN_TRANSIT);
+
+            // Assert
+            assertThat(pkg.getStatus()).isEqualTo(PackageStatus.IN_TRANSIT);
+        }
+
+        @Test
+        @DisplayName("Should throw exception for invalid transition")
+        void shouldThrowExceptionForInvalidTransition() {
+            // Arrange
+            Package pkg = createValidPackage();
+
+            // Act & Assert
+            assertThatThrownBy(() -> pkg.changeStatus(PackageStatus.DELIVERED))
+                    .isInstanceOf(InvalidStateTransitionException.class);
         }
     }
 }

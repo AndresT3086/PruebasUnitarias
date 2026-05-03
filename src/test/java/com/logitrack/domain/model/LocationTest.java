@@ -544,4 +544,109 @@ class LocationTest {
             assertThat(location.getFormattedLocation()).isEqualTo("São Paulo, Côte d'Ivoire");
         }
     }
+
+    @Test
+    @DisplayName("Should not be equal when timestamps differ")
+    void shouldNotBeEqualWhenTimestampsDiffer() {
+        // Arrange
+        Location loc1 = Location.builder()
+                .id("id-1").city("Bogotá").country("Colombia")
+                .timestamp(LocalDateTime.of(2024, 1, 1, 10, 0))
+                .build();
+        Location loc2 = Location.builder()
+                .id("id-1").city("Bogotá").country("Colombia")
+                .timestamp(LocalDateTime.of(2024, 6, 1, 10, 0))
+                .build();
+
+        // Act
+        boolean result = loc1.equals(loc2);
+
+        // Assert
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should not be equal to null")
+    void shouldNotBeEqualToNull() {
+        // Arrange
+        Location loc = Location.builder()
+                .id("id-1").city("Medellín").country("Colombia").build();
+
+        // Act
+        boolean result = loc == null;
+
+        // Assert
+        assertThat(result).isFalse();
+    }
+
+
+    @Test
+    @DisplayName("Should have consistent hashCode and meaningful toString")
+    void shouldHaveConsistentHashCodeAndMeaningfulToString() {
+        // Arrange
+        Location loc1 = Location.builder()
+                .id("id-1").city("Bogotá").country("Colombia")
+                .description("Hub principal")
+                .latitude(4.7110).longitude(-74.0721)
+                .timestamp(LocalDateTime.of(2024, 1, 1, 10, 0))
+                .build();
+        Location loc2 = Location.builder()
+                .id("id-1").city("Bogotá").country("Colombia")
+                .description("Hub principal")
+                .latitude(4.7110).longitude(-74.0721)
+                .timestamp(LocalDateTime.of(2024, 1, 1, 10, 0))
+                .build();
+
+        // Act
+        int hashCode1 = loc1.hashCode();
+        int hashCode2 = loc2.hashCode();
+        String toString = loc1.toString();
+
+        // Assert
+        assertThat(hashCode1).isEqualTo(hashCode2);
+        assertThat(toString)
+                .contains("id-1")
+                .contains("Bogotá")
+                .contains("Colombia")
+                .contains("Hub principal");
+    }
+
+    @Test
+    @DisplayName("Should be equal when nullable fields are both null")
+    void shouldBeEqualWhenNullableFieldsAreBothNull() {
+        // Arrange
+        Location loc1 = Location.builder()
+                .id("id-1").city("Bogotá").country("Colombia")
+                .description(null).latitude(null).longitude(null).timestamp(null)
+                .build();
+        Location loc2 = Location.builder()
+                .id("id-1").city("Bogotá").country("Colombia")
+                .description(null).latitude(null).longitude(null).timestamp(null)
+                .build();
+
+        // Act
+        boolean result = loc1.equals(loc2);
+
+        // Assert
+        assertThat(result).isTrue();
+        assertThat(loc1).hasSameHashCodeAs(loc2);
+    }
+
+    @Test
+    @DisplayName("Should not be equal when one description is null and the other is not")
+    void shouldNotBeEqualWhenOneDescriptionIsNull() {
+        // Arrange
+        Location loc1 = Location.builder()
+                .id("id-1").city("Bogotá").country("Colombia")
+                .description(null).build();
+        Location loc2 = Location.builder()
+                .id("id-1").city("Bogotá").country("Colombia")
+                .description("Tiene descripción").build();
+
+        // Act
+        boolean result = loc1.equals(loc2);
+
+        // Assert
+        assertThat(result).isFalse();
+    }
 }

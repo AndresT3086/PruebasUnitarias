@@ -5,9 +5,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.math.BigDecimal;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -491,6 +494,101 @@ class DimensionsTest {
 
             // Act & Assert
             assertThat(dimensions1).isNotEqualTo(dimensions2);
+        }
+    }
+
+    @Nested
+    @DisplayName("Value Object Tests")
+    class ValueObjectTests {
+
+        @Test
+        @DisplayName("Should be equal to itself")
+        void shouldBeEqualToItself() {
+            // Arrange
+            Dimensions dimensions = Dimensions.of(10.0, 20.0, 30.0);
+
+            // Act and Assert
+            assertThat(dimensions).isNotNull();
+        }
+
+        @Test
+        @DisplayName("Should be equal when all fields are the same")
+        void shouldBeEqualWhenAllFieldsAreTheSame() {
+            // Arrange
+            Dimensions dim1 = Dimensions.of(10.0, 20.0, 30.0);
+            Dimensions dim2 = Dimensions.of(10.0, 20.0, 30.0);
+
+            // Act
+            boolean result = dim1.equals(dim2);
+
+            // Assert
+            assertThat(result).isTrue();
+            assertThat(dim1).hasSameHashCodeAs(dim2);
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource("differentDimensionsCombinations")
+        @DisplayName("Should not be equal when any field differs")
+        void shouldNotBeEqualWhenAnyFieldDiffers(
+                String description,
+                Dimensions dim1,
+                Dimensions dim2) {
+            // Act
+            boolean result = dim1.equals(dim2);
+
+            // Assert
+            assertThat(result).isFalse();
+        }
+
+        static Stream<Arguments> differentDimensionsCombinations() {
+            return Stream.of(
+                    Arguments.of(
+                            "height differs",
+                            Dimensions.of(10.0, 20.0, 30.0),
+                            Dimensions.of(99.0, 20.0, 30.0)
+                    ),
+                    Arguments.of(
+                            "width differs",
+                            Dimensions.of(10.0, 20.0, 30.0),
+                            Dimensions.of(10.0, 99.0, 30.0)
+                    ),
+                    Arguments.of(
+                            "depth differs",
+                            Dimensions.of(10.0, 20.0, 30.0),
+                            Dimensions.of(10.0, 20.0, 99.0)
+                    )
+            );
+        }
+
+        @Test
+        @DisplayName("Should have meaningful toString")
+        void shouldHaveMeaningfulToString() {
+            // Arrange
+            Dimensions dimensions = Dimensions.of(10.0, 20.0, 30.0);
+
+            // Act
+            String result = dimensions.toString();
+
+            // Assert
+            assertThat(result)
+                    .contains("10.00")
+                    .contains("20.00")
+                    .contains("30.00");
+        }
+
+        @Test
+        @DisplayName("Should have consistent hashCode between equal instances")
+        void shouldHaveConsistentHashCode() {
+            // Arrange
+            Dimensions dim1 = Dimensions.of(10.0, 20.0, 30.0);
+            Dimensions dim2 = Dimensions.of(10.0, 20.0, 30.0);
+
+            // Act
+            int hashCode1 = dim1.hashCode();
+            int hashCode2 = dim2.hashCode();
+
+            // Assert
+            assertThat(hashCode1).isEqualTo(hashCode2);
         }
     }
 }

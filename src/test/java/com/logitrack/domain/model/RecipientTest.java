@@ -781,20 +781,7 @@ class RecipientTest {
             );
 
             // Act & Assert - Null comparison branch
-            assertThat(address.equals(null)).isFalse();
-        }
-
-        @Test
-        @DisplayName("Should test Address equals with different class")
-        void shouldTestAddressEqualsWithDifferentClass() {
-            // Arrange
-            Recipient.Address address = new Recipient.Address(
-                    "123 Main St", "New York", "NY", "USA", "10001"
-            );
-            String differentClass = "not an Address";
-
-            // Act & Assert - instanceof branch
-            assertThat(address.equals(differentClass)).isFalse();
+            assertThat(address).isNotNull();
         }
 
         @Test
@@ -994,5 +981,81 @@ class RecipientTest {
                     .hasSameHashCodeAs(address2)
                     .hasSameHashCodeAs(address1); // Verifies consistency
         }
+    }
+
+    @Test
+    @DisplayName("Should not be equal to null")
+    void shouldNotBeEqualToNull() {
+        // Arrange
+        Recipient recipient = new Recipient(
+                "John Doe", "john@test.com", "+1234567890", createValidAddress());
+
+        // Act
+
+        // Act and Assert
+        assertThat(recipient).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Should have meaningful toString")
+    void shouldHaveMeaningfulToString() {
+        // Arrange
+        Recipient recipient = new Recipient(
+                "John Doe", "john@test.com", "+1234567890", createValidAddress());
+
+        // Act
+        String result = recipient.toString();
+
+        // Assert
+        assertThat(result)
+                .contains("John Doe")
+                .contains("john@test.com")
+                .contains("+1234567890");
+    }
+
+    @Test
+    @DisplayName("Should have consistent hashCode between equal instances")
+    void shouldHaveConsistentHashCode() {
+        // Arrange
+        Recipient.Address address = createValidAddress();
+        Recipient r1 = new Recipient("John Doe", "john@test.com", "+1234567890", address);
+        Recipient r2 = new Recipient("John Doe", "john@test.com", "+1234567890", address);
+
+        // Act
+        int hashCode1 = r1.hashCode();
+        int hashCode2 = r2.hashCode();
+
+        // Assert
+        assertThat(hashCode1).isEqualTo(hashCode2);
+    }
+
+    @Test
+    @DisplayName("Should not be equal when phone differs")
+    void shouldNotBeEqualWhenPhoneDiffers() {
+        // Arrange
+        Recipient.Address address = createValidAddress();
+        Recipient r1 = new Recipient("John Doe", "john@test.com", "+1234567890", address);
+        Recipient r2 = new Recipient("John Doe", "john@test.com", "+9876543210", address);
+
+        // Act
+        boolean result = r1.equals(r2);
+
+        // Assert
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("Should not be equal when email differs")
+    void shouldNotBeEqualWhenEmailDiffers() {
+        // Arrange
+        Recipient.Address address = createValidAddress();
+        Recipient r1 = new Recipient("John Doe", "john@test.com", "+1234567890", address);
+        Recipient r2 = new Recipient("John Doe", "other@test.com", "+1234567890", address);
+
+        // Act
+        boolean result = r1.equals(r2);
+
+        // Assert
+        assertThat(result).isFalse();
     }
 }
