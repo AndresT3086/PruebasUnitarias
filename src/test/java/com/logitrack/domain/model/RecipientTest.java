@@ -989,12 +989,7 @@ class RecipientTest {
                     "123 Main St", "New York", "NY", "USA", "10001"
             );
 
-            // Act
-            int hash1 = address1.hashCode();
-            int hash2 = address2.hashCode();
-            int hash1Again = address1.hashCode();
-
-            // Assert
+            // Act & Assert
             assertThat(address1)
                     .hasSameHashCodeAs(address2)
                     .hasSameHashCodeAs(address1); // Verifies consistency
