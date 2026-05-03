@@ -1133,8 +1133,9 @@ class GeocodeApiClientTest {
                         .build();
 
                 // Act & Assert - Same object reference
-                assertThat(response).isEqualTo(response);
-                assertThat(response).hasSameHashCodeAs(response);
+                assertThat(response)
+                        .isEqualTo(response)
+                        .hasSameHashCodeAs(response);
             }
 
             @Test
@@ -1179,8 +1180,9 @@ class GeocodeApiClientTest {
                         .build();
 
                 // Act & Assert - Equal objects
-                assertThat(response1).isEqualTo(response2);
-                assertThat(response1).hasSameHashCodeAs(response2);
+                assertThat(response1)
+                        .isEqualTo(response2)
+                        .hasSameHashCodeAs(response2);
             }
 
             @Test
@@ -1214,8 +1216,9 @@ class GeocodeApiClientTest {
                         .build();
 
                 // Act & Assert
-                assertThat(components).isEqualTo(components);
-                assertThat(components).hasSameHashCodeAs(components);
+                assertThat(components)
+                        .isEqualTo(components)
+                        .hasSameHashCodeAs(components);
             }
 
             @Test
@@ -1263,8 +1266,9 @@ class GeocodeApiClientTest {
                         .build();
 
                 // Act & Assert
-                assertThat(components1).isEqualTo(components2);
-                assertThat(components1).hasSameHashCodeAs(components2);
+                assertThat(components1)
+                        .isEqualTo(components2)
+                        .hasSameHashCodeAs(components2);
             }
 
             @Test
@@ -1322,8 +1326,9 @@ class GeocodeApiClientTest {
                         .build();
 
                 // Act & Assert - Tests both null branch
-                assertThat(components1).isEqualTo(components2);
-                assertThat(components1).hasSameHashCodeAs(components2);
+                assertThat(components1)
+                        .isEqualTo(components2)
+                        .hasSameHashCodeAs(components2);
             }
 
             @Test
