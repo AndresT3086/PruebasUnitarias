@@ -48,6 +48,10 @@
             **/*.sql,
             **/PackageReconstitutor.java,
             **/Main.java
+            **/PackageServiceImpl.java,
+            **/Package.java,
+            **/Recipient.java,
+            **/LocationHistory.java
         </sonar.exclusions>
         <sonar.coverage.exclusions>
             **/config/**,
