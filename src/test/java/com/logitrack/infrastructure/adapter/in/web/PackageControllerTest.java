@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -46,7 +45,6 @@ class PackageControllerTest {
 
     private CreatePackageCommand createPackageCommand;
     private PackageResponse packageResponse;
-    private AddLocationCommand addLocationCommand;
 
     @BeforeEach
     void setUp() {
@@ -103,7 +101,7 @@ class PackageControllerTest {
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        addLocationCommand = AddLocationCommand.builder()
+        AddLocationCommand addLocationCommand = AddLocationCommand.builder()
                 .packageId("LT-123456789")
                 .city("Philadelphia")
                 .country("USA")

@@ -41,7 +41,7 @@ class GlobalExceptionHandlerTest {
         ResponseEntity<ApiResponse<Void>> response = handler.handlePackageNotFound(ex, request);
 
         // Assert
-        assertEquals(404, response.getStatusCodeValue());
+        assertEquals(404, response.getStatusCode().value());
         assertFalse(response.getBody().isSuccess());
         assertEquals("Package not found:Package not found", response.getBody().getMessage());
         assertEquals("PACKAGE_NOT_FOUND", response.getBody().getError().getCode());
@@ -56,7 +56,7 @@ class GlobalExceptionHandlerTest {
         ResponseEntity<ApiResponse<Void>> response = handler.handleInvalidPackageData(ex);
 
         // Assert
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(400, response.getStatusCode().value());
         assertEquals("Invalid data", response.getBody().getMessage());
         assertEquals("INVALID_PACKAGE_DATA", response.getBody().getError().getCode());
     }
@@ -71,7 +71,7 @@ class GlobalExceptionHandlerTest {
         ResponseEntity<ApiResponse<Void>> response = handler.handleInvalidStateTransition(ex);
 
         // Assert
-        assertEquals(409, response.getStatusCodeValue());
+        assertEquals(409, response.getStatusCode().value());
         assertEquals("Invalid transition", response.getBody().getMessage());
         assertEquals("INVALID_STATE_TRANSITION", response.getBody().getError().getCode());
     }
@@ -88,7 +88,7 @@ class GlobalExceptionHandlerTest {
                 handler.handleTypeMismatch(ex);
 
         // Assert
-        assertEquals(400, response.getStatusCodeValue());
+        assertEquals(400, response.getStatusCode().value());
         assertTrue(response.getBody().getMessage().contains("Invalid value"));
         assertEquals("TYPE_MISMATCH", response.getBody().getError().getCode());
     }
@@ -103,7 +103,7 @@ class GlobalExceptionHandlerTest {
                 handler.handleAccessDenied(ex);
 
         // Assert
-        assertEquals(403, response.getStatusCodeValue());
+        assertEquals(403, response.getStatusCode().value());
         assertEquals("ACCESS_DENIED", response.getBody().getError().getCode());
     }
 
@@ -117,7 +117,7 @@ class GlobalExceptionHandlerTest {
                 handler.handleBadCredentials(ex);
 
         // Assert
-        assertEquals(401, response.getStatusCodeValue());
+        assertEquals(401, response.getStatusCode().value());
         assertEquals("BAD_CREDENTIALS", response.getBody().getError().getCode());
     }
 
@@ -132,7 +132,7 @@ class GlobalExceptionHandlerTest {
                 handler.handleGenericException(ex, request);
 
         // Assert
-        assertEquals(500, response.getStatusCodeValue());
+        assertEquals(500, response.getStatusCode().value());
         assertEquals("INTERNAL_ERROR", response.getBody().getError().getCode());
         assertEquals("An unexpected error occurred", response.getBody().getMessage());
     }

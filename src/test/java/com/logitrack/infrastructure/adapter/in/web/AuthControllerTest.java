@@ -56,15 +56,14 @@ class AuthControllerTest {
         @Test
         @DisplayName("Should authenticate admin user successfully")
         void shouldAuthenticateAdminUserSuccessfully() throws Exception {
-            // Arrange
             String email = "admin@logitrack.com";
             String password = "admin123";
             String expectedToken = "jwt-token-admin";
             AuthController.LoginRequest loginRequest = new AuthController.LoginRequest(email, password);
 
-            when(tokenProvider.generateToken(eq(email), eq(List.of("ADMIN")))).thenReturn(expectedToken);
+            // Corregido: Removido eq()
+            when(tokenProvider.generateToken(email, List.of("ADMIN"))).thenReturn(expectedToken);
 
-            // Act & Assert
             mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(loginRequest)))
@@ -80,15 +79,14 @@ class AuthControllerTest {
         @Test
         @DisplayName("Should authenticate operator user successfully")
         void shouldAuthenticateOperatorUserSuccessfully() throws Exception {
-            // Arrange
             String email = "operator@logitrack.com";
             String password = "operator123";
             String expectedToken = "jwt-token-operator";
             AuthController.LoginRequest loginRequest = new AuthController.LoginRequest(email, password);
 
-            when(tokenProvider.generateToken(eq(email), eq(List.of("OPERATOR")))).thenReturn(expectedToken);
+            // Corregido: Removido eq()
+            when(tokenProvider.generateToken(email, List.of("OPERATOR"))).thenReturn(expectedToken);
 
-            // Act & Assert
             mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(loginRequest)))
@@ -104,15 +102,14 @@ class AuthControllerTest {
         @Test
         @DisplayName("Should authenticate viewer user successfully")
         void shouldAuthenticateViewerUserSuccessfully() throws Exception {
-            // Arrange
             String email = "viewer@logitrack.com";
             String password = "viewer123";
             String expectedToken = "jwt-token-viewer";
             AuthController.LoginRequest loginRequest = new AuthController.LoginRequest(email, password);
 
-            when(tokenProvider.generateToken(eq(email), eq(List.of("VIEWER")))).thenReturn(expectedToken);
+            // Corregido: Removido eq()
+            when(tokenProvider.generateToken(email, List.of("VIEWER"))).thenReturn(expectedToken);
 
-            // Act & Assert
             mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(loginRequest)))
@@ -201,7 +198,7 @@ class AuthControllerTest {
         }
 
         @Test
-        @Disabled
+        @Disabled("Pendiente de implementar")
         @DisplayName("Should return 401 for null credentials")
         void shouldReturn401ForNullCredentials() throws Exception {
             // Arrange
