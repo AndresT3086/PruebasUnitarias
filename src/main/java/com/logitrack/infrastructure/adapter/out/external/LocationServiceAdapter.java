@@ -81,7 +81,9 @@ public class LocationServiceAdapter implements LocationService {
     public boolean validateLocation(String city, String country) {
         log.debug("Validating location: {}, {}", city, country);
 
-        // Usamos 'self' en lugar de llamar directamente al metodo para que la caché funcione
-        return self.getLocationInfo(city, country).isPresent();
+        // Si self es null (caso de los tests unitarios), usamos this
+        // Si no es null (caso de Spring en ejecución), usamos self para la caché
+        LocationService serviceToUse = (self != null) ? self : this;
+        return serviceToUse.getLocationInfo(city, country).isPresent();
     }
 }
