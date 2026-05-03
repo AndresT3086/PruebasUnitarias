@@ -1133,8 +1133,8 @@ class GeocodeApiClientTest {
                         .build();
 
                 // Act & Assert - Same object reference
-                assertThat(response.equals(response)).isTrue();
-                assertThat(response.hashCode()).isEqualTo(response.hashCode());
+                assertThat(response).isEqualTo(response);
+                assertThat(response).hasSameHashCodeAs(response);
             }
 
             @Test
@@ -1179,8 +1179,8 @@ class GeocodeApiClientTest {
                         .build();
 
                 // Act & Assert - Equal objects
-                assertThat(response1.equals(response2)).isTrue();
-                assertThat(response1.hashCode()).isEqualTo(response2.hashCode());
+                assertThat(response1).isEqualTo(response2);
+                assertThat(response1).hasSameHashCodeAs(response2);
             }
 
             @Test
@@ -1214,8 +1214,8 @@ class GeocodeApiClientTest {
                         .build();
 
                 // Act & Assert
-                assertThat(components.equals(components)).isTrue();
-                assertThat(components.hashCode()).isEqualTo(components.hashCode());
+                assertThat(components).isEqualTo(components);
+                assertThat(components).hasSameHashCodeAs(components);
             }
 
             @Test
@@ -1263,8 +1263,8 @@ class GeocodeApiClientTest {
                         .build();
 
                 // Act & Assert
-                assertThat(components1.equals(components2)).isTrue();
-                assertThat(components1.hashCode()).isEqualTo(components2.hashCode());
+                assertThat(components1).isEqualTo(components2);
+                assertThat(components1).hasSameHashCodeAs(components2);
             }
 
             @Test
@@ -1322,8 +1322,8 @@ class GeocodeApiClientTest {
                         .build();
 
                 // Act & Assert - Tests both null branch
-                assertThat(components1.equals(components2)).isTrue();
-                assertThat(components1.hashCode()).isEqualTo(components2.hashCode());
+                assertThat(components1).isEqualTo(components2);
+                assertThat(components1).hasSameHashCodeAs(components2);
             }
 
             @Test
@@ -1351,7 +1351,7 @@ class GeocodeApiClientTest {
                         .build();
 
                 // Act & Assert
-                assertThat(components1.equals(components2)).isFalse();
+                assertThat(components1).isNotEqualTo(components2);
             }
         }
 
@@ -1397,7 +1397,7 @@ class GeocodeApiClientTest {
                 assertThat(result1.equals("not a Result")).isFalse(); // Different class
                 assertThat(result1.equals(result2)).isTrue(); // Equal objects
                 assertThat(result1.equals(result3)).isFalse(); // Different components
-                assertThat(result1.hashCode()).isEqualTo(result2.hashCode());
+                assertThat(result1).hasSameHashCodeAs(result2);
             }
         }
 
@@ -1430,7 +1430,7 @@ class GeocodeApiClientTest {
                 assertThat(geometry1.equals("not geometry")).isFalse(); // Different class
                 assertThat(geometry1.equals(geometry2)).isTrue(); // Equal values
                 assertThat(geometry1.equals(geometry3)).isFalse(); // Different values
-                assertThat(geometry1.hashCode()).isEqualTo(geometry2.hashCode());
+                assertThat(geometry1).hasSameHashCodeAs(geometry2);
             }
         }
 
@@ -1469,7 +1469,7 @@ class GeocodeApiClientTest {
                 assertThat(status1.equals(status2)).isTrue(); // Equal values
                 assertThat(status1.equals(status3)).isFalse(); // Different code and message
                 assertThat(status1.equals(status4)).isFalse(); // Different message (null vs non-null)
-                assertThat(status1.hashCode()).isEqualTo(status2.hashCode());
+                assertThat(status1).hasSameHashCodeAs(status2);
             }
         }
     }

@@ -301,8 +301,9 @@ class JwtAuthenticationEntryPointTest {
 
             // Should not contain sensitive information
             String responseString = capturedResponse.toString();
-            assertThat(responseString).doesNotContain("password");
-            assertThat(responseString).doesNotContain("secret123");
+            assertThat(responseString)
+                    .doesNotContain("password")
+                    .doesNotContain("secret123");
         }
 
         @Test
@@ -328,9 +329,9 @@ class JwtAuthenticationEntryPointTest {
 
                 // Assert
                 verify(objectMapper, times(1)).writeValue(eq(outputStream), apiResponseCaptor.capture());
-                ApiResponse<Void> response = apiResponseCaptor.getValue();
+                ApiResponse<Void> capturedResponse = apiResponseCaptor.getValue();
 
-                assertThat(response.getError().getCode()).isEqualTo("UNAUTHORIZED");
+                assertThat(capturedResponse.getError().getCode()).isEqualTo("UNAUTHORIZED");
             }
         }
     }
