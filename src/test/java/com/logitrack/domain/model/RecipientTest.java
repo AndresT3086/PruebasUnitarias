@@ -914,9 +914,9 @@ class RecipientTest {
                     "123 Main St", "London", null, "UK", "SW1A1AA"
             );
 
-            // Act & Assert - both null state branch
-            assertThat(address1.equals(address2)).isTrue();
-            assertThat(address1.hashCode()).isEqualTo(address2.hashCode());
+            // Act & Assert
+            assertThat(address1).isEqualTo(address2)
+                    .hasSameHashCodeAs(address2);
         }
 
         @Test
@@ -948,9 +948,10 @@ class RecipientTest {
                     .build();
 
             // Act & Assert
-            assertThat(address1.equals(address2)).isTrue();
-            assertThat(address1.equals(address3)).isFalse();
-            assertThat(address1.hashCode()).isEqualTo(address2.hashCode());
+            assertThat(address1)
+                    .isEqualTo(address2)
+                    .isNotEqualTo(address3)
+                    .hasSameHashCodeAs(address2);
         }
 
         @Test
@@ -993,9 +994,10 @@ class RecipientTest {
             int hash2 = address2.hashCode();
             int hash1Again = address1.hashCode();
 
-            // Assert - hashCode consistency
-            assertThat(hash1).isEqualTo(hash2); // Equal objects have equal hashCodes
-            assertThat(hash1).isEqualTo(hash1Again); // Consistent hashCode
+            // Assert
+            assertThat(address1)
+                    .hasSameHashCodeAs(address2)
+                    .hasSameHashCodeAs(address1); // Verifies consistency
         }
     }
 }
