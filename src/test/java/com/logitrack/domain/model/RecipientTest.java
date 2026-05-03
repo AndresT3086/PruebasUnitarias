@@ -641,7 +641,7 @@ class RecipientTest {
             // Act
             String fullAddress = address.getFullAddress();
 
-            // Assert - Tests the `if (state != null && !state.isEmpty())` branch = true (whitespace is not empty)
+            // Assert
             assertThat(fullAddress).isEqualTo("789 Pine St, Miami,    , USA 33101");
         }
     }
@@ -767,9 +767,9 @@ class RecipientTest {
                     "123 Main St", "New York", "NY", "USA", "10001"
             );
 
-            // Act & Assert - Same object reference branch
-            assertThat(address.equals(address)).isTrue();
-            assertThat(address.hashCode()).isEqualTo(address.hashCode());
+            // Act & Assert
+            assertThat(address).isEqualTo(address)
+                    .hasSameHashCodeAs(address);
         }
 
         @Test
@@ -808,9 +808,9 @@ class RecipientTest {
                     "123 Main St", "New York", "NY", "USA", "10001"
             );
 
-            // Act & Assert - All fields equal branch
-            assertThat(address1.equals(address2)).isTrue();
-            assertThat(address1.hashCode()).isEqualTo(address2.hashCode());
+            // Act & Assert
+            assertThat(address1).isEqualTo(address2)
+                    .hasSameHashCodeAs(address2);
         }
 
         @Test
