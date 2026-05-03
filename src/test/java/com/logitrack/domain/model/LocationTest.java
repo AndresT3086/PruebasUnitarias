@@ -428,8 +428,9 @@ class LocationTest {
                     .build();
 
             // Act & Assert
-            assertThat(location1).isEqualTo(location2);
-            assertThat(location1.hashCode()).isEqualTo(location2.hashCode());
+            assertThat(location1)
+                    .isEqualTo(location2)
+                    .hasSameHashCodeAs(location2);
         }
 
         @Test

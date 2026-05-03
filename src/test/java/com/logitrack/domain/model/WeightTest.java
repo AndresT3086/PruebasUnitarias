@@ -415,8 +415,9 @@ class WeightTest {
             Weight weight2 = Weight.ofKilograms(15.5);
 
             // Act & Assert
-            assertThat(weight1).isEqualTo(weight2);
-            assertThat(weight1.hashCode()).isEqualTo(weight2.hashCode());
+            assertThat(weight1)
+                    .isEqualTo(weight2)
+                    .hasSameHashCodeAs(weight2);
         }
 
         @Test

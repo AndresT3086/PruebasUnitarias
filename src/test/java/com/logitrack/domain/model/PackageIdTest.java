@@ -58,9 +58,10 @@ class PackageIdTest {
             String idPart = packageId.getValue().substring(3); // Remove "LT-" prefix
 
             // Assert
-            assertThat(idPart).matches("[A-Z0-9]{9}");
-            assertThat(idPart).doesNotContain("-");
-            assertThat(idPart).doesNotMatch(".*[a-z].*"); // No lowercase letters
+            assertThat(idPart)
+                    .matches("[A-Z0-9]{9}")
+                    .doesNotContain("-")
+                    .doesNotMatch(".*[a-z].*");
         }
 
         @Test
@@ -99,12 +100,14 @@ class PackageIdTest {
     @DisplayName("Factory Method Tests")
     class FactoryMethodTests {
 
-        @Test
-        @DisplayName("Should create package ID from valid string")
-        void shouldCreatePackageIdFromValidString() {
-            // Arrange
-            String validId = "LT-ABC123DEF";
-
+        @ParameterizedTest
+        @DisplayName("Should create package ID from valid strings")
+        @ValueSource(strings = {
+                "LT-ABC123DEF",
+                "LT-GHI456JKL",
+                "LT-XYZ789MNO"
+        })
+        void shouldCreatePackageIdFromValidStrings(String validId) {
             // Act
             PackageId packageId = PackageId.of(validId);
 
@@ -190,8 +193,9 @@ class PackageIdTest {
             PackageId id2 = PackageId.of(idValue);
 
             // Act & Assert
-            assertThat(id1).isEqualTo(id2);
-            assertThat(id1.hashCode()).isEqualTo(id2.hashCode());
+            assertThat(id1)
+                    .isEqualTo(id2)
+                    .hasSameHashCodeAs(id2);
         }
 
         @Test
@@ -249,8 +253,9 @@ class PackageIdTest {
             String toString2 = packageId.toString();
 
             // Assert
-            assertThat(toString1).isEqualTo(toString2);
-            assertThat(toString1).isEqualTo(packageId.getValue());
+            assertThat(toString1)
+                    .isEqualTo(toString2)
+                    .isEqualTo(packageId.getValue());
         }
     }
 

@@ -475,8 +475,9 @@ class DimensionsTest {
             Dimensions dimensions2 = new Dimensions(height, width, depth);
 
             // Assert - Value objects with same values should be equal
-            assertThat(dimensions1).isEqualTo(dimensions2);
-            assertThat(dimensions1.hashCode()).isEqualTo(dimensions2.hashCode());
+            assertThat(dimensions1)
+                    .isEqualTo(dimensions2)
+                    .hasSameHashCodeAs(dimensions2);
         }
 
         @Test
