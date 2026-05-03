@@ -1,18 +1,19 @@
 package com.logitrack.infrastructure.adapter.in.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.logitrack.application.dto.*;
+import com.logitrack.application.dto.AddLocationCommand;
+import com.logitrack.application.dto.CreatePackageCommand;
+import com.logitrack.application.dto.PackageResponse;
 import com.logitrack.application.service.PackageService;
 import com.logitrack.domain.model.PackageStatus;
 import com.logitrack.infrastructure.adapter.in.web.dto.ApiResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,14 +22,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("PackageController Tests")
@@ -153,6 +155,7 @@ class PackageControllerTest {
 
             // Assert
             assertThat(response.getStatusCode().value()).isEqualTo(201);
+            Assertions.assertNotNull(response.getBody());
             assertThat(response.getBody().isSuccess()).isTrue();
             assertThat(response.getBody().getMessage()).isEqualTo("Package created successfully");
             assertThat(response.getBody().getData()).isEqualTo(packageResponse);
@@ -182,6 +185,7 @@ class PackageControllerTest {
 
             // Assert
             assertThat(response.getStatusCode().value()).isEqualTo(200);
+            Assertions.assertNotNull(response.getBody());
             assertThat(response.getBody().isSuccess()).isTrue();
             assertThat(response.getBody().getMessage()).isEqualTo("Package retrieved successfully");
             assertThat(response.getBody().getData().getId()).isEqualTo(packageId);
@@ -231,7 +235,7 @@ class PackageControllerTest {
         void shouldGetPackagesByStatusSuccessfully() throws Exception {
             // Arrange
             PackageStatus status = PackageStatus.IN_TRANSIT;
-            List<PackageResponse> packages = Arrays.asList(packageResponse);
+            List<PackageResponse> packages = Collections.singletonList(packageResponse);
             when(packageService.findByStatus(status)).thenReturn(packages);
 
             // Act & Assert
@@ -250,7 +254,7 @@ class PackageControllerTest {
         void shouldReturnEmptyListWhenNoPackagesFoundWithStatus() {
             // Arrange
             PackageStatus status = PackageStatus.DELIVERED;
-            List<PackageResponse> emptyList = Arrays.asList();
+            List<PackageResponse> emptyList = List.of();
             when(packageService.findByStatus(status)).thenReturn(emptyList);
 
             // Act
@@ -258,6 +262,7 @@ class PackageControllerTest {
 
             // Assert
             assertThat(response.getStatusCode().value()).isEqualTo(200);
+            Assertions.assertNotNull(response.getBody());
             assertThat(response.getBody().getMessage()).isEqualTo("Found 0 packages with status DELIVERED");
             assertThat(response.getBody().getData()).isEmpty();
 
@@ -298,6 +303,7 @@ class PackageControllerTest {
 
             // Assert
             assertThat(response.getStatusCode().value()).isEqualTo(200);
+            Assertions.assertNotNull(response.getBody());
             assertThat(response.getBody().isSuccess()).isTrue();
             assertThat(response.getBody().getMessage()).isEqualTo("Package deleted successfully");
             assertThat(response.getBody().getData()).isNull();
@@ -333,6 +339,119 @@ class PackageControllerTest {
             mockMvc.perform(put("/api/v1/packages/{packageId}/status", packageId)
                             .param("status", "INVALID_STATUS"))
                     .andExpect(status().isBadRequest());
+        }
+    }
+
+
+    @Test
+    @DisplayName("Should return 403 when VIEWER accesses another user's package")
+    void shouldReturn403WhenViewerAccessesAnotherUsersPackage() {
+        // Arrange
+        String packageId = "LT-123456789";
+        when(packageService.getByIdOrThrow(packageId)).thenReturn(packageResponse);
+
+        Authentication authentication = mock(Authentication.class);
+        doReturn(List.of(new SimpleGrantedAuthority("ROLE_VIEWER")))
+                .when(authentication).getAuthorities();
+        when(authentication.getName()).thenReturn("other@test.com"); // email distinto al del paquete
+
+        // Act
+        ResponseEntity<ApiResponse<PackageResponse>> response =
+                packageController.getPackage(packageId, authentication);
+
+        // Assert
+        assertThat(response.getStatusCode().value()).isEqualTo(403);
+        Assertions.assertNotNull(response.getBody());
+        assertThat(response.getBody().isSuccess()).isFalse();
+        assertThat(response.getBody().getMessage()).isEqualTo("Access denied");
+    }
+
+    @Test
+    @DisplayName("Should return package when VIEWER accesses their own package")
+    void shouldReturnPackageWhenViewerAccessesOwnPackage() {
+        // Arrange
+        String packageId = "LT-123456789";
+        when(packageService.getByIdOrThrow(packageId)).thenReturn(packageResponse);
+
+        Authentication authentication = mock(Authentication.class);
+        doReturn(List.of(new SimpleGrantedAuthority("ROLE_VIEWER")))
+                .when(authentication).getAuthorities();
+        when(authentication.getName()).thenReturn("john@test.com"); // mismo email del paquete
+
+        // Act
+        ResponseEntity<ApiResponse<PackageResponse>> response =
+                packageController.getPackage(packageId, authentication);
+
+        // Assert
+        assertThat(response.getStatusCode().value()).isEqualTo(200);
+        Assertions.assertNotNull(response.getBody());
+        assertThat(response.getBody().isSuccess()).isTrue();
+        assertThat(response.getBody().getData().getId()).isEqualTo(packageId);
+    }
+
+// --- Agregar como nuevo @Nested AddLocationTests ---
+
+    @Nested
+    @DisplayName("Add Location Tests")
+    class AddLocationTests {
+
+        @Test
+        @DisplayName("Should add location successfully")
+        void shouldAddLocationSuccessfully() {
+            // Arrange
+            String packageId = "LT-123456789";
+            AddLocationCommand command = AddLocationCommand.builder()
+                    .packageId(packageId)
+                    .city("Bogotá")
+                    .country("Colombia")
+                    .description("En bodega")
+                    .build();
+            when(packageService.addLocation(any(AddLocationCommand.class)))
+                    .thenReturn(packageResponse);
+
+            // Act
+            ResponseEntity<ApiResponse<PackageResponse>> response =
+                    packageController.addLocation(packageId, command);
+
+            // Assert
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            Assertions.assertNotNull(response.getBody());
+            assertThat(response.getBody().isSuccess()).isTrue();
+            assertThat(response.getBody().getMessage()).isEqualTo("Location added successfully");
+            assertThat(command.getPackageId()).isEqualTo(packageId);
+            verify(packageService).addLocation(command);
+        }
+    }
+
+// --- Agregar como nuevo @Nested SearchPackagesTests ---
+
+    @Nested
+    @DisplayName("Search Packages Tests")
+    class SearchPackagesTests {
+
+        @Test
+        @DisplayName("Should search packages as ADMIN using provided email")
+        void shouldSearchPackagesAsAdmin() {
+            // Arrange
+            Authentication authentication = mock(Authentication.class);
+            doReturn(List.of(new SimpleGrantedAuthority("ROLE_ADMIN")))
+                    .when(authentication).getAuthorities();
+
+            Page<PackageResponse> page = Page.empty();
+            when(packageService.searchPackages(any(), any())).thenReturn(page);
+
+            // Act
+            ResponseEntity<ApiResponse<Page<PackageResponse>>> response =
+                    packageController.searchPackages(
+                            null, "john@test.com", null,
+                            null, null, false,
+                            Pageable.unpaged(), authentication);
+
+            // Assert
+            assertThat(response.getStatusCode().value()).isEqualTo(200);
+            Assertions.assertNotNull(response.getBody());
+            assertThat(response.getBody().isSuccess()).isTrue();
+            verify(packageService).searchPackages(any(), any());
         }
     }
 }
