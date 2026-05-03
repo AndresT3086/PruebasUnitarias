@@ -3,21 +3,16 @@ package com.logitrack.infrastructure.adapter.out.event;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.logitrack.domain.event.DomainEvent;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -52,7 +47,7 @@ class KafkaEventPublisherTest {
 
             when(domainEvent.getAggregateId()).thenReturn(testAggregateId);
             when(objectMapper.writeValueAsString(domainEvent)).thenReturn(testEventJson);
-            when(kafkaTemplate.send(eq("package-events"), eq(testAggregateId), eq(testEventJson)))
+            when(kafkaTemplate.send("package-events", testAggregateId, testEventJson))
                     .thenReturn(mock(CompletableFuture.class));
 
             // Act
@@ -78,7 +73,7 @@ class KafkaEventPublisherTest {
 
             when(domainEvent.getAggregateId()).thenReturn(testAggregateId);
             when(objectMapper.writeValueAsString(domainEvent)).thenReturn(testEventJson);
-            when(kafkaTemplate.send(eq(customTopic), eq(testAggregateId), eq(testEventJson)))
+            when(kafkaTemplate.send(customTopic, testAggregateId, testEventJson))
                     .thenReturn(mock(CompletableFuture.class));
 
             // Act
@@ -170,7 +165,7 @@ class KafkaEventPublisherTest {
 
             when(domainEvent.getAggregateId()).thenReturn(testAggregateId);
             when(objectMapper.writeValueAsString(domainEvent)).thenReturn(testEventJson);
-            when(kafkaTemplate.send(eq("integration-topic"), eq(testAggregateId), eq(testEventJson)))
+            when(kafkaTemplate.send("integration-topic", testAggregateId, testEventJson))
                     .thenReturn(mock(CompletableFuture.class));
 
             // Act

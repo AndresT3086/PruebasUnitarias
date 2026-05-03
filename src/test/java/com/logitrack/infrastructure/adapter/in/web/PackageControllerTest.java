@@ -100,15 +100,6 @@ class PackageControllerTest {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-
-        AddLocationCommand addLocationCommand = AddLocationCommand.builder()
-                .packageId("LT-123456789")
-                .city("Philadelphia")
-                .country("USA")
-                .description("In transit")
-                .latitude(39.9526)
-                .longitude(-75.1652)
-                .build();
     }
 
     @Nested
