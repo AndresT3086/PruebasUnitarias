@@ -488,8 +488,8 @@ class RecipientTest {
             Recipient recipient2 = new Recipient("John Doe", "john@test.com", "+1234567890", address);
 
             // Act & Assert
-            assertThat(recipient1).isEqualTo(recipient2);
-            assertThat(recipient1.hashCode()).isEqualTo(recipient2.hashCode());
+            assertThat(recipient1).isEqualTo(recipient2)
+                    .hasSameHashCodeAs(recipient2);
         }
 
         @Test
@@ -603,9 +603,10 @@ class RecipientTest {
             // Act
             String fullAddress = address.getFullAddress();
 
-            // Assert - Tests the `if (state != null && !state.isEmpty())` branch = false
-            assertThat(fullAddress).isEqualTo("123 Main St, New York, USA 10001");
-            assertThat(fullAddress).doesNotContain("null");
+            // Assert
+            assertThat(fullAddress)
+                    .isEqualTo("123 Main St, New York, USA 10001")
+                    .doesNotContain("null");
         }
 
         @Test
@@ -619,9 +620,10 @@ class RecipientTest {
             // Act
             String fullAddress = address.getFullAddress();
 
-            // Assert - Tests the `if (state != null && !state.isEmpty())` branch = false (empty string)
-            assertThat(fullAddress).isEqualTo("456 Oak Ave, Los Angeles, USA 90210");
-            assertThat(fullAddress).doesNotContain(", ,"); // No empty state in output
+            // Assert
+            assertThat(fullAddress)
+                    .isEqualTo("456 Oak Ave, Los Angeles, USA 90210")
+                    .doesNotContain(", ,"); // No empty state in output
         }
 
         @Test
